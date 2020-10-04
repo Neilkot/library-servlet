@@ -1,0 +1,49 @@
+<!--=============================================================
+Configuration file for Tomcat 6
+Data source and connection pool configuration
+(The default Tomcat's DBCP is used) 
+=============================================================-->
+
+<Context>
+
+    <!--=============================================================
+    maxTotal: Maximum number of database connections in pool. Make sure you
+    configure your mysqld max_connections large enough to handle
+    all of your db connections. Set to -1 for no limit.
+
+    maxIdle: the maximum number of connections that can remain idle in
+    the pool, without extra ones being released, negative for no limit.
+    (default 8)
+
+    maxWaitMillis: Maximum time to wait for a database connection to become 
+    available in ms, in this example 10 seconds. An Exception is thrown if
+    this timeout is exceeded.  Set to -1 to wait indefinitely.
+
+    url: the connection URL to be passed to JDBC driver to establish
+    a connection.
+
+    driverClassName: the FQN of the JDBC driver to be used.
+
+    defaultAutoCommit: the default auto-commit state of connections
+    created by this pool.
+    (default true)
+
+    defaultTransactionIsolation: the default TransactionIsolation
+    state of connections created by this pool.
+    One of the following: (see javadoc)
+    NONE  READ_COMMITTED  READ_UNCOMMITTED  REPEATABLE_READ SERIALIZABLE
+    (default - driver default)
+    =============================================================-->
+
+    <!-- MySQL -->
+    <Resource name="jdbc/mysql"
+              auth="Container"
+              type="javax.sql.DataSource"
+              maxTotal="8" maxIdle="30" maxWait="10000"
+              username="root" password="qwe98&amp;*12"
+              driverClassName="com.mysql.cj.jdbc.Driver"
+              defaultAutoCommit="true"
+              defaultTransactionIsolation="READ_COMMITTED"
+              url="jdbc:mysql://localhost/library?serverTimezone=UTC&amp;useUnicode=yes&amp;characterEncoding=UTF-8"/>
+
+</Context>
