@@ -58,7 +58,7 @@ public abstract class AbstractController extends HttpServlet {
 
 		if (e != null) {
 			if (errorCode < 500) {
-				logger.debug("HTTP client error. Redirecting to error page. code={} message={}", errorCode,
+				logger.info("HTTP client error. Redirecting to error page. code={} message={}", errorCode,
 						errorMessage);
 			} else {
 				logger.error("Server error. Redirecting client to error page. code=" + errorCode + " message="
@@ -75,13 +75,17 @@ public abstract class AbstractController extends HttpServlet {
 	protected UserSessionDTO getUserSession(HttpServletRequest req) throws ClientRequestException {
 		HttpSession session = req.getSession(false);
 		if (session == null) {
-			logger.debug("Unauthorized client request. No http session found");
+			logger.info("Forbidden client request. No http session found");
 			throw new ClientRequestException(ErrorType.UNAUTHORIZED);
 		}
-		return (UserSessionDTO) session.getAttribute("userSession");
+		UserSessionDTO userSession = (UserSessionDTO) session.getAttribute("userSession");
+		if (userSession == null) {
+			logger.info("Forbidden client request. No http user session found");
+			throw new ClientRequestException(ErrorType.FORBIDDEN);
+		}
+		return userSession;
 	}
 
-	// TODO what this for?
 	protected UserSessionDTO getOptionalUserSession(HttpServletRequest req) throws ClientRequestException {
 		return Optional.ofNullable(req.getSession(false)).map(s -> (UserSessionDTO) s.getAttribute("userSession"))
 				.orElse(null);
@@ -90,7 +94,7 @@ public abstract class AbstractController extends HttpServlet {
 	protected String parseStringParameter(HttpServletRequest req, String name) throws ClientRequestException {
 		String param = req.getParameter(name);
 		if (param == null) {
-			logger.debug("Missing required request parameter: {}", name);
+			logger.info("Missing required request parameter: {}", name);
 			throw new ClientRequestException(ErrorType.BAD_REQUEST);
 		}
 		return param;
@@ -99,13 +103,13 @@ public abstract class AbstractController extends HttpServlet {
 	protected Integer parseIntegerParameter(HttpServletRequest req, String name) throws ClientRequestException {
 		String param = req.getParameter(name);
 		if (param == null) {
-			logger.debug("Missing required request parameter: {}", name);
+			logger.info("Missing required request parameter: {}", name);
 			throw new ClientRequestException(ErrorType.BAD_REQUEST);
 		}
 		try {
 			return Integer.parseInt(param);
 		} catch (NumberFormatException e) {
-			logger.debug("Invalid required request parameter: {} param={}", name, param);
+			logger.info("Invalid required request parameter: {} param={}", name, param);
 			throw new ClientRequestException(ErrorType.BAD_REQUEST);
 		}
 	}
@@ -113,18 +117,22 @@ public abstract class AbstractController extends HttpServlet {
 	protected Boolean parseBooleanParameter(HttpServletRequest req, String name) throws ClientRequestException {
 		String param = req.getParameter(name);
 		if (param == null || (!param.trim().equalsIgnoreCase("true") && !param.trim().equalsIgnoreCase("false"))) {
-			logger.debug("Invalid required request parameter: {} param={}", name, param);
+			logger.info("Invalid required request parameter: {} param={}", name, param);
 			throw new ClientRequestException(ErrorType.BAD_REQUEST);
 		}
 		return Boolean.valueOf(param);
 	}
 
 	protected Integer parsePageSizeParameter(HttpServletRequest req) throws ClientRequestException {
-		return Optional.ofNullable(req.getParameter("pageSize")).map(Integer::parseInt).orElse(2);
+		return Optional.ofNullable(req.getParameter("pageSize")).map(Integer::parseInt).orElse(configService.getDefaultPageSize());
 	}
 
 	protected Integer parseOffsetParameter(HttpServletRequest req) throws ClientRequestException {
-		return Optional.ofNullable(req.getParameter("offset")).map(Integer::parseInt).orElse(1);
+		return Optional.ofNullable(req.getParameter("offset")).map(Integer::parseInt).orElse(configService.getDefaultOffset());
+	}
+
+	protected boolean isPrePutMethod(HttpServletRequest req) {
+		return Optional.ofNullable(req.getParameter("method")).filter(m -> m.equalsIgnoreCase("pre-put")).isPresent();
 	}
 
 	protected boolean isPutMethod(HttpServletRequest req) {

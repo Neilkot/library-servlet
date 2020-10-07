@@ -12,7 +12,8 @@ import com.epam.lab.exam.library.dao.BookDao;
 import com.epam.lab.exam.library.dao.BookItemDao;
 import com.epam.lab.exam.library.db.DBManager;
 import com.epam.lab.exam.library.db.DBManagerContainer;
-import com.epam.lab.exam.library.dto.BookDTO;
+import com.epam.lab.exam.library.dto.CreateBookDTO;
+import com.epam.lab.exam.library.dto.UpdateBookDto;
 import com.epam.lab.exam.library.exceptins.ClientRequestException;
 import com.epam.lab.exam.library.exceptins.ErrorType;
 import com.epam.lab.exam.library.model.Author;
@@ -26,7 +27,7 @@ public class BookService {
 	private final DBManager dbManager = DBManagerContainer.getInstance().getdBManager();
 	private final BookDao bookDao = BookDao.getInstance();
 	private final BookItemDao bookItemDao = BookItemDao.getInstance();
-	
+
 	private final Logger logger = LogManager.getLogger(this.getClass());
 
 	private BookService() {
@@ -36,7 +37,7 @@ public class BookService {
 		return INSTANCE;
 	}
 
-	public List<BookDTO> getAllAvaliableBooks(int pageSize, int offset) throws SQLException {
+	public List<CreateBookDTO> getAllAvaliableBooks(int pageSize, int offset) throws SQLException {
 		Connection connection = dbManager.getConnection();
 		try {
 			return bookDao.getAllAvaliableBooks(connection, pageSize, offset);
@@ -45,7 +46,7 @@ public class BookService {
 		}
 	}
 
-	public List<BookDTO> getAllBooks(int pageSize, int offset) throws SQLException {
+	public List<CreateBookDTO> getAllBooks(int pageSize, int offset) throws SQLException {
 		Connection connection = dbManager.getConnection();
 		try {
 			return bookDao.getPage(connection, pageSize, offset);
@@ -54,7 +55,7 @@ public class BookService {
 		}
 	}
 
-	public void createBook(BookDTO bookDto) throws SQLException {
+	public void createBook(CreateBookDTO bookDto) throws SQLException {
 		Connection connection = dbManager.getConnection();
 		connection.setAutoCommit(false);
 		try {
@@ -91,7 +92,7 @@ public class BookService {
 		}
 	}
 
-	public void updateBook(BookDTO bookDto) throws SQLException, ClientRequestException {
+	public void updateBook(UpdateBookDto bookDto) throws SQLException, ClientRequestException {
 		Connection connection = dbManager.getConnection();
 		connection.setAutoCommit(false);
 		try {
@@ -134,7 +135,7 @@ public class BookService {
 			bookItemDao.deleteNonRequested(connection, id);
 			List<BookItem> bookItems = bookItemDao.getByBookId(connection, bookId);
 			if (bookItems.isEmpty()) {
-				logger.debug("Deleted last book item. Deleting book. bookId={}", bookId);
+				logger.info("Deleted last book item. Deleting book. bookId={}", bookId);
 				bookDao.delete(connection, bookId);
 			}
 			connection.commit();
@@ -151,7 +152,7 @@ public class BookService {
 			dbManager.releaseConnection(connection);
 		}
 	}
-	
+
 	public int getBooksCount() throws SQLException {
 		Connection connection = dbManager.getConnection();
 		try {
@@ -161,4 +162,13 @@ public class BookService {
 		}
 	}
 
+	public int getAllBooksCount() throws SQLException {
+		Connection connection = dbManager.getConnection();
+		try {
+			return bookDao.getAllBooksCount(connection);
+		} finally {
+			dbManager.releaseConnection(connection);
+		}
+
+	}
 }

@@ -1,16 +1,13 @@
 package com.epam.lab.exam.library.util;
 
-import java.util.regex.Pattern;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.lang3.StringUtils;
 
-import com.epam.lab.exam.library.dto.BookDTO;
 import com.epam.lab.exam.library.dto.BookRequestDTO;
+import com.epam.lab.exam.library.dto.CreateBookDTO;
 import com.epam.lab.exam.library.dto.CreateUserDTO;
 import com.epam.lab.exam.library.dto.LoginDTO;
 import com.epam.lab.exam.library.dto.SubmitRequestDTO;
+import com.epam.lab.exam.library.dto.UpdateBookDto;
 import com.epam.lab.exam.library.exceptins.ClientRequestException;
 import com.epam.lab.exam.library.exceptins.ErrorType;
 
@@ -35,7 +32,7 @@ public class Validator {
 		}
 	}
 	
-	public static void validatMustBeNubmer (String text) throws ClientRequestException {
+	public static void mustBeNumber (String text) throws ClientRequestException {
 		if (text == null ) {
 			throw new ClientRequestException(ErrorType.BAD_REQUEST);
 		}
@@ -48,7 +45,7 @@ public class Validator {
 		if (pageSize == null || pageSize <= 0) {
 			throw new ClientRequestException(ErrorType.BAD_REQUEST);
 		}
-		if (offset == null || offset < 1) {
+		if (offset == null || offset < 0) {
 			throw new ClientRequestException(ErrorType.BAD_REQUEST);
 		}
 	}
@@ -71,14 +68,31 @@ public class Validator {
 		}
 	}
 
-	public static void validateUpdate(BookDTO dto) throws ClientRequestException {
-		validate(dto);
+	public static void validateUpdate(UpdateBookDto dto) throws ClientRequestException {
+		if (dto == null) {
+			throw new ClientRequestException(ErrorType.BAD_REQUEST);
+		}
+		if (StringUtils.isEmpty(dto.getAuthorName())) {
+			throw new ClientRequestException(ErrorType.BAD_REQUEST);
+		}
+		if (StringUtils.isEmpty(dto.getImgLink())) {
+			throw new ClientRequestException(ErrorType.BAD_REQUEST);
+		}
+		if (StringUtils.isEmpty(dto.getName())) {
+			throw new ClientRequestException(ErrorType.BAD_REQUEST);
+		}
+		if (StringUtils.isEmpty(dto.getPublisher())) {
+			throw new ClientRequestException(ErrorType.BAD_REQUEST);
+		}
+		if (dto.getPublishedYear() == null || dto.getPublishedYear() < 0) {
+			throw new ClientRequestException(ErrorType.BAD_REQUEST);
+		}
 		if (dto.getBookId() == null) {
 			throw new ClientRequestException(ErrorType.BAD_REQUEST);
 		}
 	}
 
-	public static void validate(BookDTO dto) throws ClientRequestException {
+	public static void validate(CreateBookDTO dto) throws ClientRequestException {
 		if (dto == null) {
 			throw new ClientRequestException(ErrorType.BAD_REQUEST);
 		}

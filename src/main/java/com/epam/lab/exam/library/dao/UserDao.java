@@ -12,13 +12,14 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.epam.lab.exam.library.constants.DB;
+import com.epam.lab.exam.library.model.RoleType;
 import com.epam.lab.exam.library.model.User;
 import com.epam.lab.exam.library.util.DBHelper;
 
 public class UserDao implements Dao<User, Integer>, CountableDao {
 
 	private static final UserDao INSTANCE = new UserDao();
-	
+
 	private final Logger logger = LogManager.getLogger(this.getClass());
 
 	private UserDao() {
@@ -34,7 +35,7 @@ public class UserDao implements Dao<User, Integer>, CountableDao {
 		String sql = String.format("INSERT INTO %s (%s, %s, %s, %s, %s, %s) VALUES(?,?,?,?,?,?);", DB.TABLE_USER,
 				DB.USER_LOGIN, DB.USER_CHECKSUM, DB.USER_FIRST_NAME, DB.USER_LAST_NAME, DB.USER_ROLE_ID,
 				DB.USER_IS_BLOCKED);
-		logger.debug("Executing sql query: {}", sql);
+		logger.info("Executing sql query: {}", sql);
 		try (PreparedStatement pst = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 			pst.setString(1, element.getLogin());
 			pst.setString(2, element.getChecksum());
@@ -60,7 +61,7 @@ public class UserDao implements Dao<User, Integer>, CountableDao {
 	public User read(Connection connection, Integer id) throws SQLException {
 		User user = null;
 		String sql = String.format("SELECT * FROM %s WHERE %s = ?;", DB.TABLE_USER, DB.USER_ID);
-		logger.debug("Executing sql query: {}", sql);
+		logger.info("Executing sql query: {}", sql);
 		try (PreparedStatement pst = connection.prepareStatement(sql)) {
 			pst.setInt(1, id);
 			try (ResultSet rs = pst.executeQuery()) {
@@ -77,7 +78,7 @@ public class UserDao implements Dao<User, Integer>, CountableDao {
 		String sql = String.format("UPDATE %s SET %s = ?, %s = ?,%s = ?,%s = ?,%s = ?,%s = ? WHERE %s = ?;",
 				DB.TABLE_USER, DB.USER_LOGIN, DB.USER_CHECKSUM, DB.USER_FIRST_NAME, DB.USER_LAST_NAME, DB.USER_ROLE_ID,
 				DB.USER_IS_BLOCKED, DB.USER_ID);
-		logger.debug("Executing sql query: {}", sql);
+		logger.info("Executing sql query: {}", sql);
 		try (PreparedStatement pst = connection.prepareStatement(sql)) {
 			pst.setString(1, element.getLogin());
 			pst.setString(2, element.getChecksum());
@@ -93,7 +94,7 @@ public class UserDao implements Dao<User, Integer>, CountableDao {
 	@Override
 	public void delete(Connection connection, Integer id) throws SQLException {
 		String sql = String.format("DELETE FROM %s WHERE %s = ?", DB.TABLE_USER, DB.USER_ID);
-		logger.debug("Executing sql query: {}", sql);
+		logger.info("Executing sql query: {}", sql);
 		try (PreparedStatement pst = connection.prepareStatement(sql)) {
 			pst.setInt(1, id);
 			pst.executeUpdate();
@@ -102,7 +103,7 @@ public class UserDao implements Dao<User, Integer>, CountableDao {
 
 	public void updateIsBlocked(Connection connection, Integer id, Boolean isBlocked) throws SQLException {
 		String sql = String.format("UPDATE %s SET %s = ? WHERE %s = ?", DB.TABLE_USER, DB.USER_IS_BLOCKED, DB.USER_ID);
-		logger.debug("Executing sql query: {}", sql);
+		logger.info("Executing sql query: {}", sql);
 		try (PreparedStatement pst = connection.prepareStatement(sql)) {
 			pst.setBoolean(1, isBlocked);
 			pst.setInt(2, id);
@@ -112,7 +113,7 @@ public class UserDao implements Dao<User, Integer>, CountableDao {
 
 	public User getByLogin(Connection connection, String login) throws SQLException {
 		String sql = String.format("SELECT * from %s WHERE %s = ?", DB.TABLE_USER, DB.USER_LOGIN);
-		logger.debug("Executing sql query: {}", sql);
+		logger.info("Executing sql query: {}", sql);
 		try (PreparedStatement pst = connection.prepareStatement(sql)) {
 			pst.setString(1, login);
 			try (ResultSet rs = pst.executeQuery()) {
@@ -133,9 +134,9 @@ public class UserDao implements Dao<User, Integer>, CountableDao {
 
 	public List<User> getByRole(Connection connection, int pageSize, int offset, Integer roleId) throws SQLException {
 		List<User> users = new ArrayList<>();
-		String sql = String.format("SELECT * FROM %s WHERE %s = ? ORDER BY %s LIMIT %d OFFSET %d;",
-				DB.TABLE_USER, DB.USER_ROLE_ID, DB.USER_ID, pageSize, offset);
-		logger.debug("Executing sql query: {}", sql);
+		String sql = String.format("SELECT * FROM %s WHERE %s = ? ORDER BY %s LIMIT %d OFFSET %d;", DB.TABLE_USER,
+				DB.USER_ROLE_ID, DB.USER_ID, pageSize, offset);
+		logger.info("Executing sql query: {}", sql);
 		try (PreparedStatement pst = connection.prepareStatement(sql)) {
 			pst.setInt(1, roleId);
 			try (ResultSet rs = pst.executeQuery()) {
@@ -146,5 +147,17 @@ public class UserDao implements Dao<User, Integer>, CountableDao {
 			}
 		}
 		return users;
+	}
+
+	public int countUsers(Connection connection, RoleType role) throws SQLException {
+
+		String sql = "SELECT COUNT(*) as count FROM users u JOIN roles r ON u.role_id = r.id WHERE r.type = ?;";
+		logger.info("Executing sql query: {}", sql);
+		try (PreparedStatement pst = connection.prepareStatement(sql)) {
+			pst.setString(1, role.toString());
+			try (ResultSet rs = pst.executeQuery()) {
+				return rs.next() ? rs.getInt("count") : 0;
+			}
+		}
 	}
 }

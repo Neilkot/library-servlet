@@ -33,7 +33,7 @@ public class BookRequestJournalDao implements Dao<BookRequestJournal, Integer> {
 				DB.TABLE_BOOK_REQUEST_JOURNAL, DB.BOOK_REQUEST_JOURNAL_BOOK_REQUEST_ID,
 				DB.BOOK_REQUEST_JOURNAL_CREATE_DATE, DB.BOOK_REQUEST_JOURNAL_APPROVE_DATE,
 				DB.BOOK_REQUEST_JOURNAL_EXPIRATION_DATE, DB.BOOK_REQUEST_JOURNAL_RETURN_DATE);
-		logger.debug("Executing sql query: {}", sql);
+		logger.info("Executing sql query: {}", sql);
 		try (PreparedStatement pst = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 			pst.setInt(1, element.getBookRequestId());
 			pst.setTimestamp(2, DBHelper.toSqlTimestamp(element.getCreateDate()));
@@ -57,7 +57,7 @@ public class BookRequestJournalDao implements Dao<BookRequestJournal, Integer> {
 		BookRequestJournal bookRequestJournal = null;
 		String sql = String.format("SELECT * FROM %s WHERE %s = ?;", DB.TABLE_BOOK_REQUEST_JOURNAL,
 				DB.BOOK_REQUEST_JOURNAL_ID);
-		logger.debug("Executing sql query: {}", sql);
+		logger.info("Executing sql query: {}", sql);
 		try (PreparedStatement pst = connection.prepareStatement(sql)) {
 			pst.setInt(1, id);
 			try (ResultSet rs = pst.executeQuery()) {
@@ -76,7 +76,7 @@ public class BookRequestJournalDao implements Dao<BookRequestJournal, Integer> {
 				DB.BOOK_REQUEST_JOURNAL_CREATE_DATE, DB.BOOK_REQUEST_JOURNAL_APPROVE_DATE,
 				DB.BOOK_REQUEST_JOURNAL_EXPIRATION_DATE, DB.BOOK_REQUEST_JOURNAL_RETURN_DATE,
 				DB.BOOK_REQUEST_JOURNAL_ID);
-		logger.debug("Executing sql query: {}", sql);
+		logger.info("Executing sql query: {}", sql);
 		try (PreparedStatement pst = connection.prepareStatement(sql)) {
 			pst.setInt(1, element.getBookRequestId());
 			pst.setTimestamp(2, DBHelper.toSqlTimestamp(element.getCreateDate()));
@@ -92,7 +92,7 @@ public class BookRequestJournalDao implements Dao<BookRequestJournal, Integer> {
 	public void delete(Connection connection, Integer id) throws SQLException {
 		String sql = String.format("DELETE FROM %s WHERE %s = ?;", DB.TABLE_BOOK_REQUEST_JOURNAL,
 				DB.BOOK_REQUEST_JOURNAL_ID);
-		logger.debug("Executing sql query: {}", sql);
+		logger.info("Executing sql query: {}", sql);
 		try (PreparedStatement pst = connection.prepareStatement(sql)) {
 			pst.setInt(1, id);
 			pst.executeUpdate();
@@ -103,7 +103,7 @@ public class BookRequestJournalDao implements Dao<BookRequestJournal, Integer> {
 		BookRequestJournal bookRequestJournal = null;
 		String sql = String.format("SELECT * FROM %s WHERE %s = ?; ", DB.TABLE_BOOK_REQUEST_JOURNAL,
 				DB.BOOK_REQUEST_JOURNAL_BOOK_REQUEST_ID);
-		logger.debug("Executing sql query: {}", sql);
+		logger.info("Executing sql query: {}", sql);
 		try (PreparedStatement pst = connection.prepareStatement(sql)) {
 			pst.setInt(1, bookRequestId);
 			try (ResultSet rs = pst.executeQuery()) {
@@ -118,7 +118,7 @@ public class BookRequestJournalDao implements Dao<BookRequestJournal, Integer> {
 	public void returnBook(Connection connection, Integer id, Instant returnDate) throws SQLException {
 		String sql = String.format("UPDATE %s SET %s = ? WHERE %s = ?;", DB.TABLE_BOOK_REQUEST_JOURNAL,
 				DB.BOOK_REQUEST_JOURNAL_RETURN_DATE, DB.BOOK_REQUEST_JOURNAL_ID);
-		logger.debug("Executing sql query: {}", sql);
+		logger.info("Executing sql query: {}", sql);
 		try (PreparedStatement pst = connection.prepareStatement(sql)) {
 			pst.setTimestamp(1, DBHelper.toSqlTimestamp(returnDate));
 			pst.setInt(2, id);
@@ -131,7 +131,7 @@ public class BookRequestJournalDao implements Dao<BookRequestJournal, Integer> {
 		String sql = String.format("UPDATE %s SET %s = ?, %s = ? WHERE %s = ?;", DB.TABLE_BOOK_REQUEST_JOURNAL,
 				DB.BOOK_REQUEST_JOURNAL_APPROVE_DATE, DB.BOOK_REQUEST_JOURNAL_EXPIRATION_DATE,
 				DB.BOOK_REQUEST_JOURNAL_BOOK_REQUEST_ID);
-		logger.debug("Executing sql query: {}", sql);
+		logger.info("Executing sql query: {}", sql);
 		try (PreparedStatement pst = connection.prepareStatement(sql)) {
 			pst.setTimestamp(1, DBHelper.toSqlTimestamp(approveDate));
 			pst.setTimestamp(2, DBHelper.toSqlTimestamp(expirationDate));

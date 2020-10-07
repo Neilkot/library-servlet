@@ -10,13 +10,13 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.epam.lab.exam.library.dto.BookDTO;
+import com.epam.lab.exam.library.dto.CreateBookDTO;
 import com.epam.lab.exam.library.exceptins.ClientRequestException;
 import com.epam.lab.exam.library.exceptins.ErrorType;
 import com.epam.lab.exam.library.service.BookService;
 import com.epam.lab.exam.library.util.Validator;
 
-@WebServlet({ "/reader-books"})
+@WebServlet({ "/reader-books" })
 public class BookController extends AbstractController {
 
 	private static final long serialVersionUID = 1L;
@@ -30,20 +30,26 @@ public class BookController extends AbstractController {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		try {
+			logger.info("loading books page");
 			Integer pageSize = parsePageSizeParameter(request);
 			Integer offset = parseOffsetParameter(request);
-			logger.info("loading books page. pageSize={} offset={}", pageSize, offset);
+			logger.info("pageSize={} offset={}", pageSize, offset);
 
 			Validator.validate(pageSize, offset);
 			int noOfRecords = bookService.getBooksCount();
 			int noOfPages = (int) Math.ceil(noOfRecords * 1.0 / pageSize);
-			List<BookDTO> books = bookService.getAllAvaliableBooks(pageSize, offset - 1);
-			logger.debug("pageSize={}, offset={}, noOfRecords={}, noOfPages={}", pageSize, offset, noOfRecords,
-					noOfPages);
-			request.setAttribute("noOfRecords", noOfPages);
+			int currPage = offset / pageSize + 1;
+			logger.info("noOfRecords={} noOfPages={} currPage={}", noOfRecords, noOfPages, currPage);
+
+
+			List<CreateBookDTO> books = bookService.getAllAvaliableBooks(pageSize, offset);
+			request.setAttribute("books", books);
+			request.setAttribute("pageSize", pageSize);
 			request.setAttribute("noOfPages", noOfPages);
 			request.setAttribute("offset", offset);
-			request.setAttribute("books", books);
+			request.setAttribute("currPage", currPage);
+			logger.info("returning books {}", books);
+			
 			request.getRequestDispatcher("/jsp/reader-books.jsp").forward(request, response);
 		} catch (ClientRequestException e) {
 			handleError(request, response, ERROR_PAGE, e.getType(), e);

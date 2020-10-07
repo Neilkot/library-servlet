@@ -1,11 +1,6 @@
 package com.epam.lab.exam.library.service;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.temporal.ChronoField;
 import java.util.concurrent.TimeUnit;
 
 public class ConfigService {
@@ -20,11 +15,11 @@ public class ConfigService {
 	}
 
 	public String getDefaultLocale() {
-		return "";
+		return "ua";
 	}
 
 	public String getPropertyValue(String locale, String messageCode) {
-		return "";
+		return messageCode;
 	}
 
 	public Float getDailyFee() {
@@ -34,8 +29,21 @@ public class ConfigService {
 	public long getExpirationMillis() {
 		return TimeUnit.DAYS.toMillis(7);
 	}
-	
-	
-	
-	
+
+	public Integer getDefaultPageSize() {
+		return 2;
+	}
+
+	public Integer getDefaultOffset() {
+		return 0;
+	}
+
+	public ZoneId getLibraryTimezone() {
+		return ZoneId.of("Europe/Kiev");
+	}
+
+	public int getLibraryClosingHour() {
+		return 22;
+	}
+
 }

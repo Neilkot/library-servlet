@@ -1,6 +1,6 @@
 package com.epam.lab.exam.library.util;
 
-import com.epam.lab.exam.library.dto.BookDTO;
+import com.epam.lab.exam.library.dto.CreateBookDTO;
 import com.epam.lab.exam.library.dto.CreateUserDTO;
 import com.epam.lab.exam.library.dto.LoginDTO;
 
@@ -28,7 +28,7 @@ public class Formatter {
 		return dto;
 	}
 
-	public static BookDTO format(BookDTO input) {
+	public static CreateBookDTO format(CreateBookDTO input) {
 		String name = input.getName().trim();
 		String authorName = input.getAuthorName().trim();
 		String publisher = input.getPublisher().trim();

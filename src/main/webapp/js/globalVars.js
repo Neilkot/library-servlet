@@ -23,7 +23,8 @@ function formatDate(date_ob) {
 	let month = ("0" + (date_ob.getMonth() + 1)).slice(-2);
 	let year = date_ob.getFullYear();
 	let hours = date_ob.getHours();
-	return year + "-" + month + "-" + date + " " + hours + ":00";
+	let minutes = date_ob.getMinutes();
+	return year + "-" + month + "-" + date + " " + hours + ":" + minutes;
 
 
 }

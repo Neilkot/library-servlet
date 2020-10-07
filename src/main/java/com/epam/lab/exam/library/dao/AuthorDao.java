@@ -28,7 +28,7 @@ public class AuthorDao implements Dao<Author, Integer> {
 	@Override
 	public Integer create(Connection connection, Author element) throws SQLException {
 		String sql = String.format("INSERT INTO %s (%s) VALUES(?);", DB.TABLE_AUTHOR, DB.AUTHOR_NAME);
-		logger.debug("Executing query: {}", sql);
+		logger.info("Executing query: {}", sql);
 		try (PreparedStatement pst = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 			pst.setString(1, element.getName());
 			pst.executeUpdate();
@@ -48,7 +48,7 @@ public class AuthorDao implements Dao<Author, Integer> {
 	public Author read(Connection connection, Integer id) throws SQLException {
 		Author author = null;
 		String sql = String.format("SELECT * from %s WHERE %s = ?;", DB.TABLE_AUTHOR, DB.AUTHOR_ID);
-		logger.debug("Executing query: {}", sql);
+		logger.info("Executing query: {}", sql);
 		try (PreparedStatement pst = connection.prepareStatement(sql)) {
 			pst.setInt(1, id);
 			ResultSet rs = pst.executeQuery();
@@ -65,7 +65,7 @@ public class AuthorDao implements Dao<Author, Integer> {
 	public void update(Connection connection, Author element) throws SQLException {
 		String sql = String.format("UPDATE %s SET %s = ?  WHERE %s = ?;", DB.TABLE_AUTHOR, DB.AUTHOR_NAME,
 				DB.AUTHOR_ID);
-		logger.debug("Executing query: {}", sql);
+		logger.info("Executing query: {}", sql);
 		try (PreparedStatement pst = connection.prepareStatement(sql)) {
 			pst.setString(1, element.getName());
 			pst.setInt(2, element.getId());
@@ -76,7 +76,7 @@ public class AuthorDao implements Dao<Author, Integer> {
 	@Override
 	public void delete(Connection connection, Integer id) throws SQLException {
 		String sql = String.format("DELETE FROM %s WHERE %s = ?;", DB.TABLE_AUTHOR, DB.AUTHOR_ID);
-		logger.debug("Executing query: {}", sql);
+		logger.info("Executing query: {}", sql);
 		try (PreparedStatement pst = connection.prepareStatement(sql)) {
 			pst.setInt(1, id);
 			pst.executeUpdate();
@@ -86,7 +86,7 @@ public class AuthorDao implements Dao<Author, Integer> {
 	public Author getByName(Connection connection, String name) throws SQLException {
 		Author author = null;
 		String sql = String.format("SELECT * from %s WHERE %s = ?;", DB.TABLE_AUTHOR, DB.AUTHOR_NAME);
-		logger.debug("Executing query: {}", sql);
+		logger.info("Executing query: {}", sql);
 		try (PreparedStatement pst = connection.prepareStatement(sql)) {
 			pst.setString(1, name);
 			ResultSet rs = pst.executeQuery();

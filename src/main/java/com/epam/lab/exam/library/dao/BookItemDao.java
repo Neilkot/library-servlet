@@ -17,7 +17,7 @@ import com.epam.lab.exam.library.model.BookItem;
 public class BookItemDao implements Dao<BookItem, Integer> {
 
 	private static final BookItemDao INSTANCE = new BookItemDao();
-	
+
 	private final Logger logger = LogManager.getLogger(this.getClass());
 
 	private BookItemDao() {
@@ -30,7 +30,7 @@ public class BookItemDao implements Dao<BookItem, Integer> {
 	@Override
 	public Integer create(Connection connection, BookItem element) throws SQLException {
 		String sql = String.format("INSERT INTO %s (%s) VALUES(?);", DB.TABLE_BOOK_ITEM, DB.BOOK_ITEM_BOOK_ID);
-		logger.debug("Executing sql query: {}", sql);
+		logger.info("Executing sql query: {}", sql);
 		try (PreparedStatement pst = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 			pst.setInt(1, element.getBookId());
 			pst.executeUpdate();
@@ -50,7 +50,7 @@ public class BookItemDao implements Dao<BookItem, Integer> {
 	public BookItem read(Connection connection, Integer id) throws SQLException {
 		BookItem bookItem = null;
 		String sql = String.format("SELECT * from %s WHERE %s = ?;", DB.TABLE_BOOK_ITEM, DB.BOOK_ITEM_ID);
-		logger.debug("Executing sql query: {}", sql);
+		logger.info("Executing sql query: {}", sql);
 		try (PreparedStatement pst = connection.prepareStatement(sql)) {
 			pst.setInt(1, id);
 			ResultSet rs = pst.executeQuery();
@@ -65,9 +65,9 @@ public class BookItemDao implements Dao<BookItem, Integer> {
 
 	@Override
 	public void update(Connection connection, BookItem element) throws SQLException {
-		String sql = String.format("UPDATE %s SET %s = ? WHERE %s = ?;", DB.TABLE_BOOK_ITEM,
-				DB.BOOK_ITEM_BOOK_ID, DB.BOOK_ITEM_ID);
-		logger.debug("Executing sql query: {}", sql);
+		String sql = String.format("UPDATE %s SET %s = ? WHERE %s = ?;", DB.TABLE_BOOK_ITEM, DB.BOOK_ITEM_BOOK_ID,
+				DB.BOOK_ITEM_ID);
+		logger.info("Executing sql query: {}", sql);
 		try (PreparedStatement pst = connection.prepareStatement(sql)) {
 			pst.setInt(1, element.getBookId());
 			pst.setInt(2, element.getId());
@@ -78,7 +78,7 @@ public class BookItemDao implements Dao<BookItem, Integer> {
 	@Override
 	public void delete(Connection connection, Integer id) throws SQLException {
 		String sql = String.format("DELETE FROM %s WHERE %s = ?;", DB.TABLE_BOOK_ITEM, DB.BOOK_ITEM_ID);
-		logger.debug("Executing sql query: {}", sql);
+		logger.info("Executing sql query: {}", sql);
 		try (PreparedStatement pst = connection.prepareStatement(sql)) {
 			pst.setInt(1, id);
 			pst.executeUpdate();
@@ -87,18 +87,19 @@ public class BookItemDao implements Dao<BookItem, Integer> {
 
 	public void deleteNonRequested(Connection connection, Integer id) throws SQLException {
 		String sql = "DELETE FROM book_items bi WHERE bi.id = ? AND bi.id NOT IN ( SELECT br.book_item_id FROM book_requests br JOIN book_requests_journals brj ON\n"
-				+ "br.id = brj.book_request_id WHERE brj.return_date IS NOT NULL);";
-		logger.debug("Executing sql query: {}", sql);
+				+ "br.id = brj.book_request_id WHERE brj.return_date IS NULL);";
+		logger.info("Executing sql query: {}", sql);
 		try (PreparedStatement pst = connection.prepareStatement(sql)) {
 			pst.setInt(1, id);
-			pst.executeUpdate();
+			int status = pst.executeUpdate();
+			logger.info("delete status={}", status);
 		}
 	}
 
 	public List<BookItem> getByBookId(Connection connection, Integer bookId) throws SQLException {
 		List<BookItem> bookItems = new ArrayList<>();
 		String sql = String.format("SELECT * from %s WHERE %s = ?;", DB.TABLE_BOOK_ITEM, DB.BOOK_ITEM_BOOK_ID);
-		logger.debug("Executing sql query: {}", sql);
+		logger.info("Executing sql query: {}", sql);
 		try (PreparedStatement pst = connection.prepareStatement(sql)) {
 			pst.setInt(1, bookId);
 			try (ResultSet rs = pst.executeQuery()) {
@@ -112,11 +113,13 @@ public class BookItemDao implements Dao<BookItem, Integer> {
 		}
 		return bookItems;
 	}
-//TODO: fix this terminator
+
 	public List<BookItem> getAllAvaliableBooks(Connection connection, Integer bookId) throws SQLException {
 		List<BookItem> bookItems = new ArrayList<>();
-		String sql = String.format("SELECT * from %s WHERE %s = ? AND id NOT IN (SELECT br.book_item_id FROM book_requests_journals brj JOIN book_requests br ON brj.book_request_id = br.id WHERE return_date IS NULL);", DB.TABLE_BOOK_ITEM, DB.BOOK_ITEM_BOOK_ID);
-		logger.debug("Executing sql query: {}", sql);
+		String sql = String.format(
+				"SELECT * from %s WHERE %s = ? AND id NOT IN (SELECT br.book_item_id FROM book_requests_journals brj JOIN book_requests br ON brj.book_request_id = br.id WHERE return_date IS NULL);",
+				DB.TABLE_BOOK_ITEM, DB.BOOK_ITEM_BOOK_ID);
+		logger.info("Executing sql query: {}", sql);
 		try (PreparedStatement pst = connection.prepareStatement(sql)) {
 			pst.setInt(1, bookId);
 			try (ResultSet rs = pst.executeQuery()) {

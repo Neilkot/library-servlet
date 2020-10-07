@@ -9,14 +9,13 @@ import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.epam.lab.exam.library.dao.BookRequestDao;
 import com.epam.lab.exam.library.dao.UserDao;
 import com.epam.lab.exam.library.db.DBManager;
 import com.epam.lab.exam.library.db.DBManagerContainer;
 import com.epam.lab.exam.library.dto.UserDTO;
 import com.epam.lab.exam.library.exceptins.ClientRequestException;
 import com.epam.lab.exam.library.exceptins.ErrorType;
-import com.epam.lab.exam.library.model.BookRequest;
+import com.epam.lab.exam.library.model.RoleType;
 import com.epam.lab.exam.library.model.User;
 
 public class UserService {
@@ -54,42 +53,6 @@ public class UserService {
 	public User createLibrarian(String login, String checksum, String firstName, String lastName)
 			throws SQLException, ClientRequestException {
 		return createUser(login, checksum, firstName, lastName, roleService.getLibrarianRole().getId());
-	}
-
-	/**
-	 * 
-	 * This method uses an SQL transaction.<br />
-	 * In case one of the requests can't be stored - none will be stored.
-	 * 
-	 */
-//TODO not used
-
-	public void submitReaderRequests(List<BookRequest> requests) throws SQLException {
-		BookRequestDao bookRequestDao = BookRequestDao.getInstance();
-		Connection connection = dbManager.getConnection();
-		try {
-			connection.setAutoCommit(false);
-			for (BookRequest request : requests) {
-				bookRequestDao.create(connection, request);
-			}
-			connection.commit();
-		} catch (SQLException e) {
-			logger.warn("Rolling back transaction for requests={}", requests);
-			connection.rollback();
-		} finally {
-			dbManager.releaseConnection(connection);
-		}
-	}
-
-	//TODO never used
-	public List<BookRequest> getReaderRequests(Integer id, int pageSize, int offset) throws SQLException {
-		Connection connection = dbManager.getConnection();
-		BookRequestDao bookRequestDao = BookRequestDao.getInstance();
-		try {
-			return bookRequestDao.getUserRequests(connection, id, pageSize, offset);
-		} finally {
-			dbManager.releaseConnection(connection);
-		}
 	}
 
 	public void updateIsBlocked(Integer id, boolean isBlocked) throws SQLException {
@@ -154,6 +117,24 @@ public class UserService {
 		Connection connection = dbManager.getConnection();
 		try {
 			return userDao.read(connection, id);
+		} finally {
+			dbManager.releaseConnection(connection);
+		}
+	}
+
+	public int countLibrarians() throws SQLException {
+		Connection connection = dbManager.getConnection();
+		try {
+			return userDao.countUsers(connection, RoleType.LIBRARIAN);
+		} finally {
+			dbManager.releaseConnection(connection);
+		}
+	}
+
+	public int countReaders() throws SQLException {
+		Connection connection = dbManager.getConnection();
+		try {
+			return userDao.countUsers(connection, RoleType.READER);
 		} finally {
 			dbManager.releaseConnection(connection);
 		}

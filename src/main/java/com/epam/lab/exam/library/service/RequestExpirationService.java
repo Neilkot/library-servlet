@@ -6,7 +6,6 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -20,7 +19,7 @@ public class RequestExpirationService {
 
 	private static final RequestExpirationService INSTANCE = new RequestExpirationService();
 	private final ConfigService configService = ConfigService.getInstance();
-	
+
 	private final Logger logger = LogManager.getLogger(this.getClass());
 
 	private RequestExpirationService() {
@@ -41,8 +40,13 @@ public class RequestExpirationService {
 		case ABONEMENT:
 			return now.plusMillis(configService.getExpirationMillis());
 		case READING_AREA:
-			// TODO: return end of this day
-			return now.plusMillis(getTimeTillEndOfTheDay());
+			if (!isLibraryOpen()) {
+				throw new ClientRequestException(ErrorType.LIBRARY_IS_CLOSED);
+			}
+			Instant expirationDate = now.plus(getHoursTillEndOfDay(), ChronoUnit.HOURS);
+			ZonedDateTime exp = ZonedDateTime.ofInstant(expirationDate, configService.getLibraryTimezone());
+			exp = exp.withMinute(0).withSecond(0);
+			return exp.toInstant();
 		default:
 			logger.warn("RequestType not supported={}", requestType);
 			throw new IllegalArgumentException("request type not supported: " + requestType);
@@ -60,19 +64,19 @@ public class RequestExpirationService {
 		Instant now = Instant.now();
 		ZonedDateTime current = ZonedDateTime.ofInstant(now, ZoneId.of("UTC"));
 		ZonedDateTime expire = ZonedDateTime.ofInstant(expirationDate, ZoneId.of("UTC"));
-		long daysExpired = ChronoUnit.DAYS.between(current, expire);
+		long daysExpired = ChronoUnit.DAYS.between(current, expire) + 1;
 		BigDecimal bigDecimal = new BigDecimal(daysExpired * dailyFee);
 		bigDecimal = bigDecimal.setScale(2, BigDecimal.ROUND_HALF_UP);
 		return bigDecimal.floatValue();
 	}
-	
-	public long getTimeTillEndOfTheDay() throws ClientRequestException {
-		int endHour = 21;
-		int hourNow = ZonedDateTime.now(ZoneId.of("Europe/Kiev")).getHour();
-		int result = endHour - hourNow;
-		if(result < 0 ) {
-			throw new ClientRequestException(ErrorType.BAD_REQUEST);
-		}
-		return TimeUnit.HOURS.toMillis(result);
+
+	private int getHoursTillEndOfDay() throws ClientRequestException {
+		int endHour = configService.getLibraryClosingHour();
+		int hourNow = ZonedDateTime.now(configService.getLibraryTimezone()).getHour();
+		return endHour - hourNow;
+	}
+
+	private boolean isLibraryOpen() {
+		return ZonedDateTime.now(configService.getLibraryTimezone()).getHour() < configService.getLibraryClosingHour();
 	}
 }

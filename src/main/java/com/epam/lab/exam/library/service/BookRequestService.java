@@ -68,11 +68,7 @@ public class BookRequestService {
 			if (journal != null) {
 				Instant returnDate = Instant.now();
 				BookRequestJournalDao.getInstance().returnBook(connection, journal.getId(), returnDate);
-			}
-			// TODO Throw Exception, when not found 28.09
-			else {
-				logger.warn("Requested return book for non existing BookRequestJournal entry. bookRequestId={}",
-						bookRequestId);
+			} else {
 				throw new ClientRequestException(ErrorType.BOOK_REQUEST_NOT_FOUND);
 			}
 		} finally {
@@ -165,6 +161,24 @@ public class BookRequestService {
 			logger.warn("Rolling back transaction for SubmitRequestDTO={}", request);
 			connection.rollback();
 			throw e;
+		} finally {
+			dbManager.releaseConnection(connection);
+		}
+	}
+
+	public int getUserApprovedRequestsCount(Integer userId) throws SQLException {
+		Connection connection = dbManager.getConnection();
+		try {
+			return bookRequestDao.countUserApprovedRequests(connection, userId);
+		} finally {
+			dbManager.releaseConnection(connection);
+		}
+	}
+
+	public int getCountApprovedRequests() throws SQLException {
+		Connection connection = dbManager.getConnection();
+		try {
+			return bookRequestDao.countApprovedRequests(connection);
 		} finally {
 			dbManager.releaseConnection(connection);
 		}

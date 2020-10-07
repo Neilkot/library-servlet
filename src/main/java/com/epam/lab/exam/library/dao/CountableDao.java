@@ -14,7 +14,7 @@ public interface CountableDao {
 	default int count(Connection connection) throws SQLException {
 		Logger logger = LogManager.getLogger(CountableDao.class.getName());
 		String sql = String.format("SELECT COUNT(*) from %s;", getTableName());
-		logger.debug("Executing sql query: {}", sql);
+		logger.info("Executing sql query: {}", sql);
 		try (PreparedStatement pst = connection.prepareStatement(sql); ResultSet rs = pst.executeQuery()) {
 			int count = 0;
 			if (rs.next()) {

@@ -31,7 +31,7 @@ public class BookRequestTypeDao implements Dao<BookRequestType, Integer> {
 	public Integer create(Connection connection, BookRequestType element) throws SQLException {
 		String sql = String.format("INSERT INTO %s (%s) VALUES(?);", DB.TABLE_BOOK_REQUEST_TYPE,
 				DB.BOOK_REQUEST_TYPE_TYPE);
-		logger.debug("Executing sql query: {}", sql); 	
+		logger.info("Executing sql query: {}", sql); 	
 		try (PreparedStatement pst = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 			pst.setString(1, element.getType().toString());
 			pst.executeUpdate();
@@ -52,7 +52,7 @@ public class BookRequestTypeDao implements Dao<BookRequestType, Integer> {
 		BookRequestType type = null;
 		String sql = String.format("SELECT * FROM %s WHERE %s = ?", DB.TABLE_BOOK_REQUEST_TYPE,
 				DB.BOOK_REQUEST_TYPE_ID);
-		logger.debug("Executing sql query: {}", sql);
+		logger.info("Executing sql query: {}", sql);
 		try (PreparedStatement pst = connection.prepareStatement(sql)) {
 			pst.setInt(1, id);
 			try (ResultSet rs = pst.executeQuery()) {
@@ -69,7 +69,7 @@ public class BookRequestTypeDao implements Dao<BookRequestType, Integer> {
 	@Override
 	public void update(Connection connection, BookRequestType element) throws SQLException {
 		String sql = String.format("UPDATE %s SET %s = ?;", DB.TABLE_BOOK_REQUEST_TYPE, DB.BOOK_REQUEST_TYPE_TYPE);
-		logger.debug("Executing sql query: {}", sql);
+		logger.info("Executing sql query: {}", sql);
 		try (PreparedStatement pst = connection.prepareStatement(sql)) {
 			pst.setString(1, element.getType().toString());
 			pst.executeUpdate();
@@ -79,7 +79,7 @@ public class BookRequestTypeDao implements Dao<BookRequestType, Integer> {
 	@Override
 	public void delete(Connection connection, Integer id) throws SQLException {
 		String sql = String.format("DELETE FROM %s WHERE %s = ?;", DB.TABLE_BOOK_REQUEST_TYPE, DB.BOOK_REQUEST_TYPE_ID);
-		logger.debug("Executing sql query: {}", sql);
+		logger.info("Executing sql query: {}", sql);
 		try (PreparedStatement pst = connection.prepareStatement(sql)) {
 			pst.setInt(1, id);
 			pst.executeUpdate();
@@ -90,7 +90,7 @@ public class BookRequestTypeDao implements Dao<BookRequestType, Integer> {
 		BookRequestType item = null;
 		String sql = String.format("SELECT * FROM %s WHERE %s = ?", DB.TABLE_BOOK_REQUEST_TYPE,
 				DB.BOOK_REQUEST_TYPE_TYPE);
-		logger.debug("Executing sql query: {}", sql);
+		logger.info("Executing sql query: {}", sql);
 		try (PreparedStatement pst = connection.prepareStatement(sql)) {
 			pst.setString(1, type);
 			try (ResultSet rs = pst.executeQuery()) {

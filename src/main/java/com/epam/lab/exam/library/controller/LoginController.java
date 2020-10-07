@@ -1,9 +1,6 @@
 package com.epam.lab.exam.library.controller;
 
-import static com.epam.lab.exam.library.constants.HTTP.ADMIN_BOOKS_PAGE;
 import static com.epam.lab.exam.library.constants.HTTP.ERROR_PAGE;
-import static com.epam.lab.exam.library.constants.HTTP.PENDING_REQUESTS_PAGE;
-import static com.epam.lab.exam.library.constants.HTTP.READER_BOOKS_PAGE;
 
 import java.io.IOException;
 
@@ -18,7 +15,6 @@ import com.epam.lab.exam.library.dto.UserSessionDTO;
 import com.epam.lab.exam.library.exceptins.ClientRequestException;
 import com.epam.lab.exam.library.exceptins.ErrorType;
 import com.epam.lab.exam.library.model.Role;
-import com.epam.lab.exam.library.model.RoleType;
 import com.epam.lab.exam.library.model.User;
 import com.epam.lab.exam.library.service.RoleService;
 import com.epam.lab.exam.library.service.UserService;
@@ -40,8 +36,10 @@ public class LoginController extends AbstractController {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		try {
+			logger.info("user logging in");
+
 			LoginDTO login = LoginDTO.from(request);
-			logger.debug("login form: {}", login);
+			logger.info("user input: {}", login);
 			Validator.validate(login);
 			LoginDTO formatted = Formatter.format(login);
 
@@ -64,27 +62,13 @@ public class LoginController extends AbstractController {
 			userSession.setRoleName(role.getType().toString());
 
 			request.getSession().setAttribute(HTTP.ATTRIBUTE_LOGINCONTROLLER_USERSESSION, userSession);
-			logger.debug("response.{}={}", HTTP.ATTRIBUTE_LOGINCONTROLLER_USERSESSION, userSession);
+			logger.info("user logged in: {}", userSession);
 
-			String redirectPage = getDefaultPage(role.getType());
-			response.sendRedirect(redirectPage);
+			response.sendRedirect("/home");
 		} catch (ClientRequestException e) {
 			handleError(request, response, ERROR_PAGE, e.getType(), e);
 		} catch (Exception e) {
 			handleError(request, response, ERROR_PAGE, ErrorType.INTERNAL_SERVER_ERROR, e);
-		}
-	}
-
-	private String getDefaultPage(RoleType roleType) {
-		switch (roleType) {
-		case ADMIN:
-			return ADMIN_BOOKS_PAGE;
-		case LIBRARIAN:
-			return PENDING_REQUESTS_PAGE;
-		case READER:
-			return READER_BOOKS_PAGE;
-		default:
-			throw new IllegalArgumentException("Not supported RoleType: " + roleType);
 		}
 	}
 }

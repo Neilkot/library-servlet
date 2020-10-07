@@ -7,12 +7,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.sql.SQLException;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.temporal.ChronoField;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Before;
@@ -22,10 +16,6 @@ import com.epam.lab.exam.library.dao.AbstractDaoTest;
 import com.epam.lab.exam.library.dao.UserDao;
 import com.epam.lab.exam.library.dto.UserDTO;
 import com.epam.lab.exam.library.exceptins.ClientRequestException;
-import com.epam.lab.exam.library.model.BookItem;
-import com.epam.lab.exam.library.model.BookRequest;
-import com.epam.lab.exam.library.model.BookRequestType;
-import com.epam.lab.exam.library.model.RequestType;
 import com.epam.lab.exam.library.model.Role;
 import com.epam.lab.exam.library.model.RoleType;
 import com.epam.lab.exam.library.model.User;
@@ -82,27 +72,6 @@ public class UserServiceTest extends AbstractDaoTest {
 			throws SQLException, ClientRequestException {
 		userService.createLibrarian(LOGIN, CHECKSUM, FIRST_NAME, LAST_NAME);
 		userService.createLibrarian(LOGIN, CHECKSUM, FIRST_NAME, LAST_NAME);
-	}
-
-	@Test
-	public void shouldSubmitAndGetReaderRequests() throws SQLException {
-		List<BookRequest> requests = new ArrayList<>();
-		User user = createUser(RoleType.READER);
-		BookItem bookOne = createBookItem(AUTHER_NAME_BLOCK);
-		BookRequestType bookRequestTypeOne = getBookRequestType(RequestType.ABONEMENT);
-		BookRequest requestOne = getBookRequest(user, bookOne, bookRequestTypeOne);
-
-		BookItem bookTwo = createBookItem(AUTHER_NAME_MARTIN, NAME_CLEAN_CODE);
-		BookRequestType bookRequestTypeTwo = getBookRequestType(RequestType.READING_AREA);
-		BookRequest requestTwo = getBookRequest(user, bookTwo, bookRequestTypeTwo);
-
-		requests.add(requestOne);
-		requests.add(requestTwo);
-		userService.submitReaderRequests(requests);
-
-		List<BookRequest> readerRequests = userService.getReaderRequests(user.getId(), 2, 0);
-		assertEquals(requests.size(), readerRequests.size());
-		assertEquals(requests.get(0).getUserId(), readerRequests.get(1).getUserId());
 	}
 
 	@Test

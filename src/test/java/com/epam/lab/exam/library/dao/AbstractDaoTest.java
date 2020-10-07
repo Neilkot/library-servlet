@@ -89,6 +89,7 @@ public abstract class AbstractDaoTest {
 		}
 	}
 
+	@SuppressWarnings("unused")
 	private static void createTable(CreateTable createTable) {
 		String tableName = createTable.toString().toLowerCase();
 		try {

@@ -29,7 +29,7 @@ public class RoleDao implements Dao<Role, Integer> {
 	@Override
 	public Integer create(Connection connection, Role element) throws SQLException {
 		String sql = String.format("INSERT INTO %s (%s) VALUES(?)", DB.TABLE_ROLE, DB.ROLE_TYPE);
-		logger.debug("Executing sql query: {}", sql);
+		logger.info("Executing sql query: {}", sql);
 		try (PreparedStatement pst = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 			pst.setString(1, element.getType().toString());
 			pst.executeUpdate();
@@ -49,7 +49,7 @@ public class RoleDao implements Dao<Role, Integer> {
 	public Role read(Connection connection, Integer id) throws SQLException {
 		Role role = null;
 		String sql = String.format("Select * from %s WHERE %s = ?", DB.TABLE_ROLE, DB.ROLE_ID);
-		logger.debug("Executing sql query: {}", sql);
+		logger.info("Executing sql query: {}", sql);
 		try (PreparedStatement pst = connection.prepareStatement(sql)) {
 			pst.setInt(1, id);
 			try (ResultSet rs = pst.executeQuery()) {
@@ -66,7 +66,7 @@ public class RoleDao implements Dao<Role, Integer> {
 	@Override
 	public void update(Connection connection, Role element) throws SQLException {
 		String sql = String.format("UPDATE %s SET %s = ? WHERE %s = ?;", DB.TABLE_ROLE, DB.ROLE_TYPE, DB.ROLE_ID);
-		logger.debug("Executing sql query: {}", sql);
+		logger.info("Executing sql query: {}", sql);
 		try (PreparedStatement pst = connection.prepareStatement(sql)) {
 			pst.setString(1, element.getType().toString());
 			pst.setInt(2, element.getId());
@@ -77,7 +77,7 @@ public class RoleDao implements Dao<Role, Integer> {
 	@Override
 	public void delete(Connection connection, Integer id) throws SQLException {
 		String sql = String.format("DELETE FROM %s WHERE %s = ?", DB.TABLE_ROLE, DB.ROLE_ID);
-		logger.debug("Executing sql query: {}", sql);
+		logger.info("Executing sql query: {}", sql);
 		try (PreparedStatement pst = connection.prepareStatement(sql)) {
 			pst.setInt(1, id);
 			pst.executeUpdate();
@@ -87,7 +87,7 @@ public class RoleDao implements Dao<Role, Integer> {
 	public Role getByType(Connection connection, RoleType type) throws SQLException {
 		Role role = null;
 		String sql = String.format("SELECT * from %s WHERE %s = ?;", DB.TABLE_ROLE, DB.ROLE_TYPE);
-		logger.debug("Executing sql query: {}", sql);
+		logger.info("Executing sql query: {}", sql);
 		try (PreparedStatement pst = connection.prepareStatement(sql)) {
 			pst.setString(1, type.toString());
 			try (ResultSet rs = pst.executeQuery()) {

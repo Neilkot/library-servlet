@@ -32,6 +32,7 @@
 <script src="${pageContext.request.contextPath}/js/globalVars.js" type="text/javascript"></script>
 <script src="${pageContext.request.contextPath}/js/md5.js"></script>
 </head>
+
 <jsp:include page="header.jsp" />
 <!-- Masthead-->
 <header class="masthead overflow-hidden">
@@ -39,57 +40,59 @@
 		<div class="row h-100 align-items-center justify-content-center text-center ">
 			<div id="media_hidden" class="col-lg-10 align-self-end">
 				<h1 class="text-uppercase text-white font-weight-bold">
-					<fmt:message key="header.welcome.message" />
+					<fmt:message key="reader.requests.welcomemsg" />
 				</h1>
 				<hr class="divider my-4" />
 			</div>
 			<div class="container-sm align-self-baseline">
 				<p id="media_hidden" class="text-white-75 font-weight-light mb-5">
-					<fmt:message key="header.info.message" />
+					<fmt:message key="xxxxx" />
 				</p>
-
-				<form id="submit_form" action="reader-requests" method="post">
-					<input id="submit_book_id" name="bookId" type="hidden" required /> <input id="submit_request_type" name="requestType" type="hidden" required />
-				</form>
 				<div class="table-responsive table table-fixed ">
+					<form id="submit_form" action="/approved-request" method="post">
+						<input id="submit_request_id" name="bookRequestId" type="hidden" />
+					</form>
 					<table class="table">
 						<thead class="thead-dark">
 							<tr>
 								<th scope="col"><fmt:message key="table.book.id" /></th>
+								<c:if test="${userSession.roleName == 'LIBRARIAN'}">
+									<th scope="col"><fmt:message key="table.book.username" /></th>
+								</c:if>
 								<th scope="col"><fmt:message key="table.book.name" /></th>
 								<th scope="col"><fmt:message key="table.book.author.name" /></th>
-								<th scope="col"><fmt:message key="table.book.publisher" /></th>
-								<th scope="col"><fmt:message key="table.book.published.year" /></th>
-								<th scope="col"><fmt:message key="table.book.image" /></th>
-								<c:choose>
-									<c:when test="${userSession.roleName == 'READER'}">
-										<th scope="col"><fmt:message key="table.book.type" /></th>
-										<th scope="col"><fmt:message key="table.book.action" /></th>
-									</c:when>
-								</c:choose>
+								<th scope="col"><fmt:message key="table.book.type" /></th>
+								<th scope="col"><fmt:message key="table.book.createdate" /></th>
+								<th scope="col"><fmt:message key="table.book.approvedate" /></th>
+								<th scope="col"><fmt:message key="table.book.expirationdate" /></th>
+								<th scope="col"><fmt:message key="table.book.returndate" /></th>
+								<th scope="col"><fmt:message key="table.book.fee" /></th>
+								<c:if test="${userSession.roleName == 'LIBRARIAN'}">
+									<th scope="col"><fmt:message key="table.book.action" /></th>
+								</c:if>
+
 							</tr>
 						</thead>
 						<tbody>
-							<c:forEach items="${books}" var="book">
+							<c:forEach items="${requests}" var="bookRequest">
 								<tr>
-									<td><c:out value="${book.bookId}" /></td>
-									<td><c:out value="${book.name}" /></td>
-									<td><c:out value="${book.authorName}" /></td>
-									<td><c:out value="${book.publisher}" /></td>
-									<td><c:out value="${book.publishedYear}" /></td>
-									<td><img src="<c:out value="${book.imgLink}" />" width="150" height="150"></td>
-									<c:choose>
-										<c:when test="${userSession.roleName == 'READER'}">
-											<td><select class="form-control form-control-sm" id="request_type_${book.bookId}">
-													<option value="" />
-													<option value="ABONEMENT"><fmt:message key="request.type.abonement" /></option>
-													<option value="READING_AREA"><fmt:message key="request.type.reading.area" /></option>
-											</select></td>
-											<td><button type="button" class="btn btn-warning" onclick="submitRequest(${book.bookId});">
-													<fmt:message key="table.book.button.add" />
-												</button></td>
-										</c:when>
-									</c:choose>
+									<td><c:out value="${bookRequest.requestId}" /></td>
+									<c:if test="${userSession.roleName == 'LIBRARIAN'}">
+										<td><c:out value="${bookRequest.username}" /></td>
+									</c:if>
+									<td><c:out value="${bookRequest.bookName}" /></td>
+									<td><c:out value="${bookRequest.authorName}" /></td>
+									<td><c:out value="${bookRequest.requestType}" /></td>
+									<td class="table-column-date"><c:out value="${bookRequest.createDate}" /></td>
+									<td class="table-column-date"><c:out value="${bookRequest.approveDate}" /></td>
+									<td class="table-column-date"><c:out value="${bookRequest.expirationDate}" /></td>
+									<td class="table-column-date"><c:out value="${bookRequest.returnDate}" /></td>
+									<td><c:out value="${bookRequest.fee}" /></td>
+									<c:if test="${userSession.roleName == 'LIBRARIAN'}">
+										<td><button type="button" class="btn btn-warning" onclick="submitRequest(${bookRequest.requestId});">
+												<fmt:message key="table.book.returnbook" />
+											</button></td>
+									</c:if>
 								</tr>
 							</c:forEach>
 						</tbody>
@@ -99,7 +102,7 @@
 			<nav aria-label="Page navigation example">
 				<ul class="pagination justify-content-right">
 					<c:if test="${offset != 0}">
-						<li class="page-item"><a class="page-link" href="/reader-books?offset=${pageSize * currPage - pageSize * 2}"><fmt:message key="pagination.previous" /></a></li>
+						<li class="page-item"><a class="page-link" href="/${location}?offset=${pageSize * currPage - pageSize * 2}"><fmt:message key="pagination.previous" /></a></li>
 					</c:if>
 					<c:forEach begin="1" end="${noOfPages}" var="i">
 						<c:choose>
@@ -107,12 +110,12 @@
 								<li class="page-item active"><a class="page-link">${i}</a></li>
 							</c:when>
 							<c:otherwise>
-								<li class="page-item"><a class="page-link" href="/reader-books?offset=${i * pageSize - pageSize}">${i}</a></li>
+								<li class="page-item"><a class="page-link" href="/${location}?offset=${i * pageSize - pageSize}">${i}</a></li>
 							</c:otherwise>
 						</c:choose>
 					</c:forEach>
 					<c:if test="${((pageSize * noOfPages) - pageSize) gt offset}">
-						<li class="page-item"><a class="page-link" href="/reader-books?offset=${pageSize * currPage}"><fmt:message key="pagination.next" /></a></li>
+						<li class="page-item"><a class="page-link" href="/${location}?offset=${pageSize * currPage}"><fmt:message key="pagination.next" /></a></li>
 					</c:if>
 				</ul>
 			</nav>
@@ -120,12 +123,27 @@
 	</div>
 </header>
 <script>
-	function submitRequest(bookId) {
-		requestType = $("#request_type_" + bookId).val();
-		$("#submit_book_id").val(bookId);
-		$("#submit_request_type").val(requestType);
-		$("#submit_form").submit();
-	}
- 		</script>
+    			$(document).ready(function() {
+    				
+    				formatDates();
+
+    				chooseNavigationSelect();
+
+    				$("#en").click(function() {
+    					document.cookie = "language=en";
+    					location.reload();
+    				});
+    				$("#ua").click(function() {
+    					document.cookie = "language=ua";
+    					location.reload();
+    				});
+    			});
+    			
+    			function submitRequest(requestId) {
+    				$("#submit_request_id").val(requestId);
+    				$("#submit_form").submit();
+    		}
+
+    		</script>
 </body>
 </html>

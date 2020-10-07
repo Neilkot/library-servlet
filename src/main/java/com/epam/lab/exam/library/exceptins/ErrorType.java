@@ -4,7 +4,8 @@ public enum ErrorType {
 
 	USER_NOT_FOUND("userNotFound", 404), BOOK_REQUEST_NOT_FOUND("bookRequestNotFound", 404), LOGIN_IN_USE("loginInUse", 422), BOOK_NOT_FOUND("bookNotFound", 404),
 	BAD_REQUEST("badRequest", 400), INTERNAL_SERVER_ERROR("internalServerError", 500),
-	ALREADY_LOGGED_IN("alreadyLoggedIn", 422), UNAUTHORIZED("unauthorized", 401), FORBIDDEN("forbidden", 403),
+	ALREADY_LOGGED_IN("alreadyLoggedIn", 422),
+	LIBRARY_IS_CLOSED("library.is.closed", 422),UNAUTHORIZED("unauthorized", 401), FORBIDDEN("forbidden", 403),
 	METHOD_NOT_ALLOWED("methodNotAllowed", 405), BOOK_NOT_AVALIABLE("bookNotAvaliable", 422),
 	REQUEST_NOT_FOUND("requestNotFound", 404);
 

@@ -8,7 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.epam.lab.exam.library.exceptins.ClientRequestException;
 
-public class CreateBookDTO implements Serializable {
+public class UpdateBookDto implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -20,14 +20,22 @@ public class CreateBookDTO implements Serializable {
 	private Integer publishedYear;
 	private String imgLink;
 
-	public static CreateBookDTO createBookDTOfrom(HttpServletRequest request) throws ClientRequestException {
-		CreateBookDTO dto = new CreateBookDTO();
+	public static UpdateBookDto createBookDTOfrom(HttpServletRequest request) throws ClientRequestException {
+		UpdateBookDto dto = new UpdateBookDto();
+		String bookId = request.getParameter("bookId");
+		if (StringUtils.isNotBlank(bookId)) {
+			dto.setBookId(Integer.parseInt(bookId));
+		}
+		String bookItemId = request.getParameter("bookItemId");
+		if (StringUtils.isNotBlank(bookItemId)) {
+			dto.setBookItemId(Integer.parseInt(bookItemId));
+		}
 		dto.setName(request.getParameter("bookName"));
 		dto.setAuthorName(request.getParameter("author_name"));
 		dto.setPublisher(request.getParameter("publisher"));
-		String publish_year = request.getParameter("published_year");
-		if (StringUtils.isNotBlank(publish_year)) {
-			dto.setPublishedYear(Integer.parseInt(publish_year));
+		String publishedYear = request.getParameter("published_year");
+		if (StringUtils.isNotBlank(publishedYear)) {
+			dto.setPublishedYear(Integer.parseInt(publishedYear));
 		}
 		dto.setImgLink(request.getParameter("image_link"));
 		return dto;
@@ -91,7 +99,7 @@ public class CreateBookDTO implements Serializable {
 
 	@Override
 	public String toString() {
-		return "BookDTO [bookId=" + bookId + ", bookItemId=" + bookItemId + ", name=" + name + ", authorName="
+		return "UpdateBookDTO [bookId=" + bookId + ", bookItemId=" + bookItemId + ", name=" + name + ", authorName="
 				+ authorName + ", publisher=" + publisher + ", publishedYear=" + publishedYear + ", imgLink=" + imgLink
 				+ "]";
 	}

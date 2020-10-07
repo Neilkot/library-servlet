@@ -17,40 +17,37 @@
 <html>
 <head>
 <title>Insert title here</title>
+<link rel="stylesheet" href="css/style.css">
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
 <script src="${pageContext.request.contextPath}/js/md5.js"></script>
-<link rel="stylesheet"  href="${pageContext.request.contextPath}/css/styles.css"/>
 </head>
 <body>
-<p>
-<p>
-<p>
-<p>
-<p>
-<form id="login-form" class="form" action="../login" method="post">
-  <div class="form-group">
-    <label for="exampleInputEmail1"><fmt:message key="header.login" /></label>
-    <input type="text" class="form-control" id="exampleInputEmail1" name="login" placeholder="Login" aria-describedby="emailHelp"">
-  </div>
-  <div class="form-group">
-    <label for="exampleInputPassword1"><fmt:message key="header.password" /></label>
-    <input id="password" type="password" name="password" class="form-control"  placeholder="Password">
-    <input id="checksum" type="hidden" name="checksum" />
-  </div>
-  <div class="form-group form-check">
-  </div>
-  <button type="submit" class="btn btn-primary" id="login-button"><fmt:message key="header.submit" /></button>
-</form>
+	<div class="wrapper">
+		<div class="container">
+			<h1>Welcome</h1>
+			<form id="registration-form" class="form" action="/reader" method="post">
+				<input type="text" name="login" placeholder="Login" /> <input type="text" name="firstName" placeholder="First Name" /> <input type="text" name="lastName" placeholder="Last Name" /> <input
+					id="password" type="password" name="password" placeholder="Password" /> <input id="checksum" type="hidden" name="checksum" />
+				<button type="submit" id="login-button">Register</button>
+			</form>
+		</div>
 
-
-
-
-
-
+		<ul class="bg-bubbles">
+			<li></li>
+			<li></li>
+			<li></li>
+			<li></li>
+			<li></li>
+			<li></li>
+			<li></li>
+			<li></li>
+			<li></li>
+			<li></li>
+		</ul>
+	</div>
 
 	<script>
-		$("#login-form").on("submit", function() {
+		$("#registration-form").on("submit", function() {
 			var password = $("#password");
 			if (password) {
 				var checksum = md5(password);

@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 import java.sql.SQLException;
-import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -66,27 +65,6 @@ public class BookRequestDaoTest extends AbstractDaoTest {
 		bookRequestDao.delete(getConnection(), id);
 		BookRequest actual = bookRequestDao.read(getConnection(), id);
 		assertNull(actual);
-	}
-
-	@Test
-	public void shouldReturnAllUserRequestsByUserId() throws SQLException {
-		User user = createUser(RoleType.READER);
-		BookItem bookOne = createBookItem(AUTHER_NAME_BLOCK);
-		BookRequest requestOne = getBookRequest(user, bookOne, getBookRequestType(RequestType.ABONEMENT));
-		requestOne.setId(bookRequestDao.create(getConnection(), requestOne));
-		BookItem bookTwo = createBookItem(AUTHER_NAME_MARTIN, NAME_CLEAN_CODE);
-		BookRequest requestTwo = getBookRequest(user, bookTwo, getBookRequestType(RequestType.READING_AREA));
-		requestTwo.setId(bookRequestDao.create(getConnection(), requestTwo));
-
-		List<BookRequest> bookRequests = bookRequestDao.getUserRequests(getConnection(), user.getId(), 2, 0);
-		assertEquals(2, bookRequests.size());
-		assertEquals(requestOne, bookRequests.get(0));
-		assertEquals(requestTwo, bookRequests.get(1));
-	}
-
-	@Test
-	public void test() throws Exception {
-		bookRequestDao.getUserApprovedRequests(getConnection(), 2, 0, 10);
 	}
 
 }

@@ -12,7 +12,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.epam.lab.exam.library.constants.DB;
-import com.epam.lab.exam.library.dto.BookDTO;
+import com.epam.lab.exam.library.dto.CreateBookDTO;
 import com.epam.lab.exam.library.model.Book;
 import com.epam.lab.exam.library.util.DBHelper;
 
@@ -33,7 +33,7 @@ public class BookDao implements Dao<Book, Integer>, CountableDao {
 	public Integer create(Connection connection, Book element) throws SQLException {
 		String sql = String.format("INSERT INTO %s (%s, %s, %s, %s, %s) VALUES( ?,?,?,?,?);", DB.TABLE_BOOK,
 				DB.BOOK_NAME, DB.BOOK_AUTHOR_ID, DB.BOOK_PUBLISHER, DB.BOOK_PUBLISH_YEAR, DB.BOOK_IMAGE_LINK);
-		logger.debug("Executing sql query: {}", sql);
+		logger.info("Executing sql query: {}", sql);
 		try (PreparedStatement pst = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 			pst.setString(1, element.getName());
 			pst.setInt(2, element.getAuthorid());
@@ -57,7 +57,7 @@ public class BookDao implements Dao<Book, Integer>, CountableDao {
 	public Book read(Connection connection, Integer id) throws SQLException {
 		Book book = null;
 		String sql = String.format("SELECT * from %s WHERE %s = ?;", DB.TABLE_BOOK, DB.BOOK_ID);
-		logger.debug("Executing sql query: {}", sql);
+		logger.info("Executing sql query: {}", sql);
 		try (PreparedStatement pst = connection.prepareStatement(sql)) {
 			pst.setInt(1, id);
 			try (ResultSet rs = pst.executeQuery()) {
@@ -74,7 +74,7 @@ public class BookDao implements Dao<Book, Integer>, CountableDao {
 		String sql = String.format("UPDATE %s SET %s =?, %s = ?, %s = ?, %s = ?, %s = ? WHERE %s = ?;", DB.TABLE_BOOK,
 				DB.BOOK_NAME, DB.BOOK_AUTHOR_ID, DB.BOOK_PUBLISHER, DB.BOOK_PUBLISH_YEAR, DB.BOOK_IMAGE_LINK,
 				DB.BOOK_ID);
-		logger.debug("Executing sql query: {}", sql);
+		logger.info("Executing sql query: {}", sql);
 		try (PreparedStatement pst = connection.prepareStatement(sql)) {
 			pst.setString(1, element.getName());
 			pst.setInt(2, element.getAuthorid());
@@ -89,16 +89,17 @@ public class BookDao implements Dao<Book, Integer>, CountableDao {
 	@Override
 	public void delete(Connection connection, Integer id) throws SQLException {
 		String sql = String.format("DELETE FROM %s WHERE %s = ?;", DB.TABLE_BOOK, DB.BOOK_ID);
-		logger.debug("Executing sql query: {}", sql);
+		logger.info("Executing sql query: {}", sql);
 		try (PreparedStatement pst = connection.prepareStatement(sql)) {
 			pst.setInt(1, id);
 			pst.executeUpdate();
 		}
 	}
 
-	public List<BookDTO> getAllAvaliableBooks(Connection connection, int pageSize, int offset) throws SQLException {
+	public List<CreateBookDTO> getAllAvaliableBooks(Connection connection, int pageSize, int offset)
+			throws SQLException {
 
-		List<BookDTO> books = new ArrayList<>();
+		List<CreateBookDTO> books = new ArrayList<>();
 
 		String sql = "SELECT DISTINCT " + DB.TABLE_BOOK + "." + DB.BOOK_ID + " as book_id," + DB.TABLE_BOOK + "."
 				+ DB.BOOK_NAME + " as book_name," + DB.TABLE_AUTHOR + "." + DB.AUTHOR_NAME + " as author_name, "
@@ -114,14 +115,14 @@ public class BookDao implements Dao<Book, Integer>, CountableDao {
 				+ DB.TABLE_BOOK_REQUEST_JOURNAL + "." + DB.BOOK_REQUEST_JOURNAL_RETURN_DATE + " IS NULL) ORDER BY "
 				+ DB.TABLE_BOOK + "." + DB.BOOK_ID + " LIMIT ? OFFSET ?;";
 
-		logger.debug("Executing sql query: {}", sql);
+		logger.info("Executing sql query: {}", sql);
 
 		try (PreparedStatement pst = connection.prepareStatement(sql)) {
 			pst.setInt(1, pageSize);
 			pst.setInt(2, offset);
 			try (ResultSet rs = pst.executeQuery()) {
 				while (rs.next()) {
-					BookDTO bookDto = new BookDTO();
+					CreateBookDTO bookDto = new CreateBookDTO();
 					bookDto.setBookId(rs.getInt("book_id"));
 					bookDto.setName(rs.getString("book_name"));
 					bookDto.setAuthorName(rs.getString("author_name"));
@@ -135,16 +136,19 @@ public class BookDao implements Dao<Book, Integer>, CountableDao {
 		return books;
 	}
 
-	public List<BookDTO> getPage(Connection connection, int pageSize, int offset) throws SQLException {
-		List<BookDTO> books = new ArrayList<>();
-		String sql = "SELECT b.id, b.name, a.name, b.publisher, b.publish_year, b.image_link, bi.id FROM books b JOIN authors a ON b.author_id = a.id JOIN book_items bi ON b.id = bi.book_id ORDER BY b.id LIMIT ? OFFSET ?;";
-		logger.debug("Executing sql query: {}", sql);
+	public List<CreateBookDTO> getPage(Connection connection, int pageSize, int offset) throws SQLException {
+		List<CreateBookDTO> books = new ArrayList<>();
+		String sql = "SELECT b.id, b.name, a.name, b.publisher, b.publish_year, b.image_link, bi.id "
+				+ "FROM books b JOIN authors a ON b.author_id = a.id " + "JOIN book_items bi ON b.id = bi.book_id "
+				+ "WHERE bi.id NOT IN (SELECT br.book_item_id FROM book_requests br JOIN book_requests_journals brj ON brj.book_request_id = br.id "
+				+ " WHERE brj.return_date IS NOT NULL) " + "ORDER BY b.id LIMIT ? OFFSET ?;";
+		logger.info("Executing sql query: {}", sql);
 		try (PreparedStatement pst = connection.prepareStatement(sql)) {
 			pst.setInt(1, pageSize);
 			pst.setInt(2, offset);
 			try (ResultSet rs = pst.executeQuery()) {
 				while (rs.next()) {
-					BookDTO bookDto = new BookDTO();
+					CreateBookDTO bookDto = new CreateBookDTO();
 					bookDto.setBookId(rs.getInt(1));
 					bookDto.setName(rs.getString(2));
 					bookDto.setAuthorName(rs.getString(3));
@@ -159,12 +163,22 @@ public class BookDao implements Dao<Book, Integer>, CountableDao {
 		return books;
 	}
 
+	public int getAllBooksCount(Connection connection) throws SQLException {
+		String sql = "SELECT COUNT(*) as count " + "FROM books b JOIN authors a ON b.author_id = a.id "
+				+ "JOIN book_items bi ON b.id = bi.book_id "
+				+ "WHERE bi.id NOT IN (SELECT br.book_item_id FROM book_requests br JOIN book_requests_journals brj ON brj.book_request_id = br.id "
+				+ " WHERE brj.return_date IS NOT NULL);";
+		try (PreparedStatement pst = connection.prepareStatement(sql); ResultSet rs = pst.executeQuery()) {
+			return rs.next() ? rs.getInt("count") : 0;
+		}
+	}
+
 	public Book getBook(Connection connection, String name, Integer authorId, String publisher, Integer publishedYear)
 			throws SQLException {
 		Book book = null;
 		String sql = String.format("SELECT * FROM %s WHERE %s = ? AND %s = ? AND %s = ? AND %s = ?;", DB.TABLE_BOOK,
 				DB.BOOK_NAME, DB.BOOK_AUTHOR_ID, DB.BOOK_PUBLISHER, DB.BOOK_PUBLISH_YEAR);
-		logger.debug("Executing sql query: {}", sql);
+		logger.info("Executing sql query: {}", sql);
 		try (PreparedStatement pst = connection.prepareStatement(sql)) {
 			pst.setString(1, name);
 			pst.setInt(2, authorId);
@@ -183,4 +197,5 @@ public class BookDao implements Dao<Book, Integer>, CountableDao {
 	public String getTableName() {
 		return DB.TABLE_BOOK;
 	}
+
 }

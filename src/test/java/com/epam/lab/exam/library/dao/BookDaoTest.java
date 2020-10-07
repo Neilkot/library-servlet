@@ -10,7 +10,7 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.epam.lab.exam.library.dto.BookDTO;
+import com.epam.lab.exam.library.dto.CreateBookDTO;
 import com.epam.lab.exam.library.model.Author;
 import com.epam.lab.exam.library.model.Book;
 import com.epam.lab.exam.library.model.BookItem;
@@ -77,7 +77,7 @@ public class BookDaoTest extends AbstractDaoTest {
 		BookItem bookItemOne = createBookItem(AUTHER_NAME_MARTIN, NAME_CLEAN_CODE);
 		BookItem bookItemTwo = createBookItem(AUTHER_NAME_BLOCK, NAME_EFFECTIVE_JAVA);
 
-		List<BookDTO> avaliableBooks = bookDao.getAllAvaliableBooks(getConnection(), 2, 0);
+		List<CreateBookDTO> avaliableBooks = bookDao.getAllAvaliableBooks(getConnection(), 2, 0);
 		assertEquals(2, avaliableBooks.size());
 		assertEquals(bookItemOne.getBookId(), avaliableBooks.get(0).getBookId());
 		assertEquals(bookItemTwo.getBookId(), avaliableBooks.get(1).getBookId());
@@ -93,7 +93,7 @@ public class BookDaoTest extends AbstractDaoTest {
 		journal.setReturnDate(null);
 		BookRequestJournalDao.getInstance().create(getConnection(), journal);
 
-		List<BookDTO> avaliableBooks = bookDao.getAllAvaliableBooks(getConnection(), 0, 1);
+		List<CreateBookDTO> avaliableBooks = bookDao.getAllAvaliableBooks(getConnection(), 0, 1);
 		assertEquals(0, avaliableBooks.size());
 	}
 
@@ -111,7 +111,7 @@ public class BookDaoTest extends AbstractDaoTest {
 		BookItem bookItemOne = createBookItem(AUTHER_NAME_BLOCK);
 		BookItem bookItemTwo = createBookItem(AUTHER_NAME_MARTIN, NAME_CLEAN_CODE);
 
-		List<BookDTO> books = bookDao.getPage(getConnection(), 2, 0);
+		List<CreateBookDTO> books = bookDao.getPage(getConnection(), 2, 0);
 		assertEquals(2, books.size());
 		assertEquals(bookItemOne.getId(), books.get(0).getBookItemId());
 		assertEquals(bookItemTwo.getId(), books.get(1).getBookItemId());
@@ -121,7 +121,7 @@ public class BookDaoTest extends AbstractDaoTest {
 	public void shouldReturnSecondPage() throws SQLException {
 		createBookItem(AUTHER_NAME_BLOCK);
 		BookItem bookItemTwo = createBookItem(AUTHER_NAME_MARTIN, NAME_CLEAN_CODE);
-		List<BookDTO> books = bookDao.getPage(getConnection(), 2, 1);
+		List<CreateBookDTO> books = bookDao.getPage(getConnection(), 2, 1);
 		assertEquals(1, books.size());
 		assertEquals(bookItemTwo.getBookId(), books.get(0).getBookId());
 	}

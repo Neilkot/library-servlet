@@ -35,7 +35,7 @@ public class BookRequestDao implements Dao<BookRequest, Integer> {
 	public Integer create(Connection connection, BookRequest element) throws SQLException {
 		String sql = String.format("INSERT INTO %s (%s, %s, %s) VALUES (?, ?, ?);", DB.TABLE_BOOK_REQUEST,
 				DB.BOOK_REQUEST_USER_ID, DB.BOOK_REQUEST_BOOK_ITEM_ID, DB.BOOK_REQUEST_BOOK_REQUEST_TYPE_ID);
-		logger.debug("Executing sql query: {}", sql);
+		logger.info("Executing sql query: {}", sql);
 		try (PreparedStatement pst = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 			pst.setInt(1, element.getUserId());
 			pst.setInt(2, element.getBookItemId());
@@ -57,7 +57,7 @@ public class BookRequestDao implements Dao<BookRequest, Integer> {
 	public BookRequest read(Connection connection, Integer id) throws SQLException {
 		BookRequest bookRequest = null;
 		String sql = String.format("SELECT * FROM %s WHERE %s = ?;", DB.TABLE_BOOK_REQUEST, DB.BOOK_REQUEST_ID);
-		logger.debug("Executing sql query: {}", sql);
+		logger.info("Executing sql query: {}", sql);
 		try (PreparedStatement pst = connection.prepareStatement(sql)) {
 			pst.setInt(1, id);
 			try (ResultSet rs = pst.executeQuery()) {
@@ -74,7 +74,7 @@ public class BookRequestDao implements Dao<BookRequest, Integer> {
 		String sql = String.format("UPDATE %s SET %s = ?, %s = ?, %s = ? WHERE %s = ?;", DB.TABLE_BOOK_REQUEST,
 				DB.BOOK_REQUEST_USER_ID, DB.BOOK_REQUEST_BOOK_ITEM_ID, DB.BOOK_REQUEST_BOOK_REQUEST_TYPE_ID,
 				DB.BOOK_REQUEST_ID);
-		logger.debug("Executing sql query: {}", sql);
+		logger.info("Executing sql query: {}", sql);
 		try (PreparedStatement pst = connection.prepareStatement(sql)) {
 			pst.setInt(1, element.getUserId());
 			pst.setInt(2, element.getBookItemId());
@@ -87,37 +87,18 @@ public class BookRequestDao implements Dao<BookRequest, Integer> {
 	@Override
 	public void delete(Connection connection, Integer id) throws SQLException {
 		String sql = String.format("DELETE FROM %s WHERE %s = ?;", DB.TABLE_BOOK_REQUEST, DB.BOOK_REQUEST_ID);
-		logger.debug("Executing sql query: {}", sql);
+		logger.info("Executing sql query: {}", sql);
 		try (PreparedStatement pst = connection.prepareStatement(sql)) {
 			pst.setInt(1, id);
 			pst.executeUpdate();
 		}
 	}
 
-	public List<BookRequest> getUserRequests(Connection connection, Integer id, int pageSize, int offset)
-			throws SQLException {
-		List<BookRequest> requests = new ArrayList<>();
-		String sql = String.format("SELECT * FROM %s WHERE %s = ? ORDER BY %s LIMIT %d OFFSET %d;",
-				DB.TABLE_BOOK_REQUEST, DB.BOOK_REQUEST_USER_ID, DB.BOOK_REQUEST_ID, pageSize, offset);
-		logger.debug("Executing sql query: {}", sql);
-		try (PreparedStatement pst = connection.prepareStatement(sql)) {
-			pst.setInt(1, id);
-			try (ResultSet rs = pst.executeQuery()) {
-				while (rs.next()) {
-					BookRequest bookRequest = DBHelper.getBookRequest(rs);
-					requests.add(bookRequest);
-				}
-			}
-		}
-		return requests;
-	}
-//TODO rewrite
-
 	public List<PendingRequestDTO> getPendingNonBlockedReaderRequests(Connection connection, int pageSize, int offset)
 			throws SQLException {
 		List<PendingRequestDTO> bookRequests = new ArrayList<>();
 		String sql = "SELECT CONCAT(u.first_name,' ', u.last_name) as user_name, b.name as book_name, a.name as author_name, brt.type as request_type, brj.create_date as create_date, br.id as request_id FROM book_requests br JOIN users u ON br.user_id = u.id JOIN book_items bi ON bi.id = br.book_item_id JOIN books b ON bi.book_id = b.id JOIN authors a ON b.author_id = a.id JOIN book_request_types brt ON br.book_request_type_id = brt.id JOIN book_requests_journals brj ON br.id = brj.book_request_id WHERE NOT u.is_blocked AND brj.approve_date IS NULL ORDER BY br.id LIMIT ? OFFSET ?;";
-		logger.debug("Executing sql query: {}", sql);
+		logger.info("Executing sql query: {}", sql);
 
 		try (PreparedStatement pst = connection.prepareStatement(sql)) {
 			pst.setInt(1, pageSize);
@@ -156,7 +137,7 @@ public class BookRequestDao implements Dao<BookRequest, Integer> {
 				+ "JOIN book_requests_journals brj ON br.id = brj.book_request_id "//
 				+ "WHERE NOT u.is_blocked AND brj.approve_date IS NOT NULL "//
 				+ "ORDER BY br.id LIMIT ? OFFSET ?;";
-		logger.debug("Executing sql query: {}", sql);
+		logger.info("Executing sql query: {}", sql);
 
 		try (PreparedStatement pst = connection.prepareStatement(sql)) {
 			pst.setInt(1, pageSize);
@@ -195,7 +176,7 @@ public class BookRequestDao implements Dao<BookRequest, Integer> {
 				+ " book_request_types brt ON brt.id = br.book_request_type_id JOIN\n"
 				+ " book_requests_journals brj ON brj.book_request_id = br.id \n"
 				+ " WHERE NOT u.is_blocked AND brj.approve_date IS NOT NULL AND\n" + " u.id = ? LIMIT ? OFFSET ?;";
-		logger.debug("Executing sql query: {}", sql);
+		logger.info("Executing sql query: {}", sql);
 		try (PreparedStatement pst = connection.prepareStatement(sql)) {
 			pst.setInt(1, userId);
 			pst.setInt(2, pageSize);
@@ -223,6 +204,36 @@ public class BookRequestDao implements Dao<BookRequest, Integer> {
 		String sql = "SELECT COUNT(*) as 'count' FROM book_requests br JOIN users u ON br.user_id = u.id JOIN book_items bi ON bi.id = br.book_item_id JOIN books b ON bi.book_id = b.id JOIN authors a ON b.author_id = a.id JOIN book_request_types brt ON br.book_request_type_id = brt.id JOIN book_requests_journals brj ON br.id = brj.book_request_id WHERE NOT u.is_blocked AND brj.approve_date IS NULL;";
 		try (PreparedStatement pst = connection.prepareStatement(sql); ResultSet rs = pst.executeQuery()) {
 			return rs.next() ? rs.getInt("count") : 0;
+		}
+	}
+
+	public int countUserApprovedRequests(Connection connection, Integer id) throws SQLException {
+		String sql = "SELECT COUNT(*) as 'count'" + " FROM book_requests br JOIN users u ON\n"
+				+ " br.user_id = u.id JOIN\n" + " book_items bi ON bi.id = br.book_item_id JOIN\n"
+				+ " books b ON b.id = bi.book_id JOIN\n" + " authors a ON a.id = b.author_id JOIN\n"
+				+ " book_request_types brt ON brt.id = br.book_request_type_id JOIN\n"
+				+ " book_requests_journals brj ON brj.book_request_id = br.id \n"
+				+ " WHERE NOT u.is_blocked AND brj.approve_date IS NOT NULL AND\n" + " u.id = ?;";
+		try (PreparedStatement pst = connection.prepareStatement(sql)) {
+			pst.setInt(1, id);
+			try (ResultSet rs = pst.executeQuery()) {
+				return rs.next() ? rs.getInt("count") : 0;
+			}
+		}
+	}
+
+	public int countApprovedRequests(Connection connection) throws SQLException {
+		String sql = "SELECT COUNT(*) as count " + "FROM book_requests br "//
+				+ "JOIN users u ON br.user_id = u.id "//
+				+ "JOIN book_items bi ON bi.id = br.book_item_id "//
+				+ "JOIN books b ON bi.book_id = b.id "//
+				+ "JOIN authors a ON b.author_id = a.id "//
+				+ "JOIN book_request_types brt ON br.book_request_type_id = brt.id "//
+				+ "JOIN book_requests_journals brj ON br.id = brj.book_request_id "//
+				+ "WHERE NOT u.is_blocked AND brj.approve_date IS NOT NULL";
+
+		try (PreparedStatement pst = connection.prepareStatement(sql); ResultSet rs = pst.executeQuery()) {
+				return rs.next() ? rs.getInt("count") : 0;
 		}
 	}
 }

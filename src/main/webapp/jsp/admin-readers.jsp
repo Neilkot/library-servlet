@@ -39,7 +39,7 @@
 		<div class="row h-100 align-items-center justify-content-center text-center ">
 			<div id="media_hidden" class="col-lg-10 align-self-end">
 				<h1 class="text-uppercase text-white font-weight-bold">
-					<fmt:message key="header.welcome.message" />
+					<fmt:message key="header.admin.librarians" />
 				</h1>
 				<hr class="divider my-4" />
 			</div>
@@ -48,48 +48,32 @@
 					<fmt:message key="header.info.message" />
 				</p>
 
-				<form id="submit_form" action="reader-requests" method="post">
-					<input id="submit_book_id" name="bookId" type="hidden" required /> <input id="submit_request_type" name="requestType" type="hidden" required />
+				<form id="change_reader_blocked_form" action="/reader" method="post">
+					<input type="hidden" name="method" value="put" /> <input id="change_reader_blocked_id" name="readerId" type="hidden" />
 				</form>
 				<div class="table-responsive table table-fixed ">
 					<table class="table">
 						<thead class="thead-dark">
 							<tr>
 								<th scope="col"><fmt:message key="table.book.id" /></th>
-								<th scope="col"><fmt:message key="table.book.name" /></th>
-								<th scope="col"><fmt:message key="table.book.author.name" /></th>
-								<th scope="col"><fmt:message key="table.book.publisher" /></th>
-								<th scope="col"><fmt:message key="table.book.published.year" /></th>
-								<th scope="col"><fmt:message key="table.book.image" /></th>
-								<c:choose>
-									<c:when test="${userSession.roleName == 'READER'}">
-										<th scope="col"><fmt:message key="table.book.type" /></th>
-										<th scope="col"><fmt:message key="table.book.action" /></th>
-									</c:when>
-								</c:choose>
+								<th scope="col"><fmt:message key="admin.login" /></th>
+								<th scope="col"><fmt:message key="admin.firstname" /></th>
+								<th scope="col"><fmt:message key="admin.lastname" /></th>
+								<th scope="col"><fmt:message key="admin.status" /></th>
+								<th scope="col"><fmt:message key="table.book.action" /></th>
 							</tr>
 						</thead>
 						<tbody>
-							<c:forEach items="${books}" var="book">
+							<c:forEach var="reader" items="${readers}">
 								<tr>
-									<td><c:out value="${book.bookId}" /></td>
-									<td><c:out value="${book.name}" /></td>
-									<td><c:out value="${book.authorName}" /></td>
-									<td><c:out value="${book.publisher}" /></td>
-									<td><c:out value="${book.publishedYear}" /></td>
-									<td><img src="<c:out value="${book.imgLink}" />" width="150" height="150"></td>
-									<c:choose>
-										<c:when test="${userSession.roleName == 'READER'}">
-											<td><select class="form-control form-control-sm" id="request_type_${book.bookId}">
-													<option value="" />
-													<option value="ABONEMENT"><fmt:message key="request.type.abonement" /></option>
-													<option value="READING_AREA"><fmt:message key="request.type.reading.area" /></option>
-											</select></td>
-											<td><button type="button" class="btn btn-warning" onclick="submitRequest(${book.bookId});">
-													<fmt:message key="table.book.button.add" />
-												</button></td>
-										</c:when>
-									</c:choose>
+									<td>${reader.id}</td>
+									<td>${reader.login}</td>
+									<td>${reader.firstName}</td>
+									<td>${reader.lastName}</td>
+									<td>${reader.isBlocked}</td>
+									<td><button type="button" class="btn btn-warning" onclick="submitRequest(${reader.id});">
+											<fmt:message key="admin.table.user.status" />
+										</button></td>
 								</tr>
 							</c:forEach>
 						</tbody>
@@ -99,7 +83,7 @@
 			<nav aria-label="Page navigation example">
 				<ul class="pagination justify-content-right">
 					<c:if test="${offset != 0}">
-						<li class="page-item"><a class="page-link" href="/reader-books?offset=${pageSize * currPage - pageSize * 2}"><fmt:message key="pagination.previous" /></a></li>
+						<li class="page-item"><a class="page-link" href="/reader?offset=${pageSize * currPage - pageSize * 2}"><fmt:message key="pagination.previous" /></a></li>
 					</c:if>
 					<c:forEach begin="1" end="${noOfPages}" var="i">
 						<c:choose>
@@ -107,12 +91,12 @@
 								<li class="page-item active"><a class="page-link">${i}</a></li>
 							</c:when>
 							<c:otherwise>
-								<li class="page-item"><a class="page-link" href="/reader-books?offset=${i * pageSize - pageSize}">${i}</a></li>
+								<li class="page-item"><a class="page-link" href="/reader?offset=${i * pageSize - pageSize}">${i}</a></li>
 							</c:otherwise>
 						</c:choose>
 					</c:forEach>
 					<c:if test="${((pageSize * noOfPages) - pageSize) gt offset}">
-						<li class="page-item"><a class="page-link" href="/reader-books?offset=${pageSize * currPage}"><fmt:message key="pagination.next" /></a></li>
+						<li class="page-item"><a class="page-link" href="/reader?offset=${pageSize * currPage}"><fmt:message key="pagination.next" /></a></li>
 					</c:if>
 				</ul>
 			</nav>
@@ -120,12 +104,10 @@
 	</div>
 </header>
 <script>
-	function submitRequest(bookId) {
-		requestType = $("#request_type_" + bookId).val();
-		$("#submit_book_id").val(bookId);
-		$("#submit_request_type").val(requestType);
-		$("#submit_form").submit();
-	}
- 		</script>
+function submitRequest(id) {
+	$("#change_reader_blocked_id").val(id);
+	$("#change_reader_blocked_form").submit();
+}
+    		</script>
 </body>
 </html>

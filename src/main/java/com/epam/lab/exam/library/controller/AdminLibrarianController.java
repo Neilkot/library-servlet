@@ -19,12 +19,13 @@ import com.epam.lab.exam.library.exceptins.ClientRequestException;
 import com.epam.lab.exam.library.exceptins.ErrorType;
 import com.epam.lab.exam.library.model.Role;
 import com.epam.lab.exam.library.model.RoleType;
+import com.epam.lab.exam.library.model.User;
 import com.epam.lab.exam.library.service.RoleService;
 import com.epam.lab.exam.library.service.UserService;
 import com.epam.lab.exam.library.util.Formatter;
 import com.epam.lab.exam.library.util.Validator;
 
-@WebServlet("/librarian")
+@WebServlet("/admin-librarians")
 public class AdminLibrarianController extends AbstractController {
 	private static final long serialVersionUID = 1L;
 
@@ -38,23 +39,36 @@ public class AdminLibrarianController extends AbstractController {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		try {
+			logger.info("loading librarians page");
 			UserSessionDTO userSession = getUserSession(request);
-			
+
 			Role role = roleService.getRole(userSession.getRoleId());
 			if (role.getType() != RoleType.ADMIN) {
-				logger.debug("Forbidden user operation. userRole={} userId={} username={}", role.getType(),
+				logger.info("Forbidden user operation. userRole={} userId={} username={}", role.getType(),
 						userSession.getUserId(), userSession.getUsername());
 				throw new ClientRequestException(ErrorType.FORBIDDEN);
 			}
 			Integer pageSize = parsePageSizeParameter(request);
 			Integer offset = parseOffsetParameter(request);
-			logger.debug("incoming request parameters. pageSize={} offset={}", pageSize, offset);
+			logger.info("pageSize={} offset={}", pageSize, offset);
 
 			Validator.validate(pageSize, offset);
+			int noOfRecords = userService.countLibrarians();
+			int noOfPages = (int) Math.ceil(noOfRecords * 1.0 / pageSize);
+			int currPage = offset / pageSize + 1;
+			logger.info("noOfRecords={} noOfPages={} currPage={}", noOfRecords, noOfPages, currPage);
+
+
 			List<UserDTO> librarians = userService.getLibrarians(pageSize, offset);
 			request.setAttribute(HTTP.ATTRIBUTE_ADMIN_LIBRARIANS_LIBRARIANS, librarians);
+			request.setAttribute("pageSize", pageSize);
+			request.setAttribute("noOfPages", noOfPages);
+			request.setAttribute("offset", offset);
+			request.setAttribute("currPage", currPage);
+			
+			logger.info("returning librarians {}", librarians);
 
-			logger.debug("response.{}={}", HTTP.ATTRIBUTE_ADMIN_LIBRARIANS_LIBRARIANS, librarians);
+			request.getRequestDispatcher("/jsp/admin-librarians.jsp").forward(request, response);
 		} catch (ClientRequestException e) {
 			handleError(request, response, ERROR_PAGE, e.getType(), e);
 		} catch (Exception e) {
@@ -80,37 +94,45 @@ public class AdminLibrarianController extends AbstractController {
 
 	private void processLibrarianCreate(HttpServletRequest request, HttpServletResponse response)
 			throws ClientRequestException, SQLException, ServletException, IOException {
+		logger.info("creating librarian");
 		UserSessionDTO userSession = getUserSession(request);
-		
+
 		Role role = roleService.getRole(userSession.getRoleId());
 		if (role.getType() != RoleType.ADMIN) {
-			logger.debug("Forbidden user operation. userRole={} userId={} username={}", role.getType(),
+			logger.info("Forbidden user operation. userRole={} userId={} username={}", role.getType(),
 					userSession.getUserId(), userSession.getUsername());
 			throw new ClientRequestException(ErrorType.FORBIDDEN);
 		}
 		CreateUserDTO userDto = CreateUserDTO.from(request);
+		logger.info("user input {}", userDto);
 		Validator.validate(userDto);
 		CreateUserDTO formatted = Formatter.format(userDto);
-		logger.debug("Creating librarian={}",formatted );
-		userService.createLibrarian(formatted.getLogin(), formatted.getChecksum(), formatted.getFirstName(),
+
+		User librarian = userService.createLibrarian(formatted.getLogin(), formatted.getChecksum(), formatted.getFirstName(),
 				formatted.getLastName());
+		logger.info("librarian created {}", librarian);
+		
 		response.sendRedirect(HTTP.ADMIN_LIBRARIANS_PAGE);
 
 	}
 
 	private void processLibrarianDelete(HttpServletRequest request, HttpServletResponse response)
 			throws ClientRequestException, SQLException, ServletException, IOException {
+		logger.info("deleting librarian");
 		UserSessionDTO userSession = getUserSession(request);
-		
+
 		Role role = roleService.getRole(userSession.getRoleId());
 		if (role.getType() != RoleType.ADMIN) {
-			logger.debug("Forbidden user operation. userRole={} userId={} username={}", role.getType(),
+			logger.info("Forbidden user operation. userRole={} userId={} username={}", role.getType(),
 					userSession.getUserId(), userSession.getUsername());
 			throw new ClientRequestException(ErrorType.FORBIDDEN);
 		}
 		Integer id = parseIntegerParameter(request, "id");
-		logger.debug("Deleting user ba Id={}", id);
+		logger.info("user input: {}", id);
+		
 		userService.deleteUser(id);
+		logger.info("librarian deleted");
+		
 		response.sendRedirect(HTTP.ADMIN_LIBRARIANS_PAGE);
 	}
 

@@ -40,21 +40,35 @@ public class ReaderController extends AbstractController {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		try {
+			logger.info("loading readers page");
 			UserSessionDTO userSession = getUserSession(request);
 
 			Role role = roleService.getRole(userSession.getRoleId());
 			if (role.getType() != RoleType.ADMIN) {
-				logger.debug("Forbidden user operation. userRole={} userId={} username={}", role.getType(),
+				logger.info("Forbidden user operation. userRole={} userId={} username={}", role.getType(),
 						userSession.getUserId(), userSession.getUsername());
 				throw new ClientRequestException(ErrorType.FORBIDDEN);
 			}
 			Integer pageSize = parsePageSizeParameter(request);
 			Integer offset = parseOffsetParameter(request);
+			logger.info("user input: pageSize={} offset={}", pageSize, offset);
+
 			Validator.validate(pageSize, offset);
-			logger.debug("incoming request parameters. pageSize={} offset={}", pageSize, offset);
+			int noOfRecords = userService.countReaders();
+			int noOfPages = (int) Math.ceil(noOfRecords * 1.0 / pageSize);
+			int currPage = offset / pageSize + 1;
+			logger.info("noOfRecords={} noOfPages={} currPage={}", noOfRecords, noOfPages, currPage);
+
+
 			List<UserDTO> readers = userService.getReaders(pageSize, offset);
+			request.setAttribute("pageSize", pageSize);
+			request.setAttribute("noOfPages", noOfPages);
+			request.setAttribute("offset", offset);
+			request.setAttribute("currPage", currPage);
 			request.setAttribute(HTTP.ATTRIBUTE_ADMIN_READERS_READERS, readers);
-			logger.debug("response.{}={}", HTTP.ATTRIBUTE_ADMIN_READERS_READERS, readers);
+			logger.info("returning readers {}", readers);
+
+			request.getRequestDispatcher("/jsp/admin-readers.jsp").forward(request, response);
 		} catch (ClientRequestException e) {
 			handleError(request, response, ERROR_PAGE, e.getType(), e);
 		} catch (Exception e) {
@@ -81,10 +95,10 @@ public class ReaderController extends AbstractController {
 	private void processReaderCreation(HttpServletRequest request, HttpServletResponse response)
 			throws ClientRequestException, SQLException, ServletException, IOException {
 		logger.info("Processing reader registration");
-		UserSessionDTO userSession = getUserSession(request);
+		UserSessionDTO userSession = getOptionalUserSession(request);
 
 		CreateUserDTO userDto = CreateUserDTO.from(request);
-		logger.debug("Registration form: " + userDto);
+		logger.info("Registration form: " + userDto);
 		Validator.validate(userDto);
 		CreateUserDTO formatted = Formatter.format(userDto);
 		User reader = userService.createReader(formatted.getLogin(), formatted.getChecksum(), formatted.getFirstName(),
@@ -97,17 +111,18 @@ public class ReaderController extends AbstractController {
 		userSession.setUserId(reader.getId());
 
 		request.getSession().setAttribute(HTTP.ATTRIBUTE_READERCONTROLLER_USERSESSION, userSession);
-		logger.debug("response.{}={}", HTTP.ATTRIBUTE_READERCONTROLLER_USERSESSION, userSession );
+		logger.info("response.{}={}", HTTP.ATTRIBUTE_READERCONTROLLER_USERSESSION, userSession);
 		response.sendRedirect(HTTP.READER_BOOKS_PAGE);
 	}
 
 	private void processReaderChangeIsBlocked(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException, ClientRequestException, SQLException {
+		logger.info("changing reader isBlocked status");
 		UserSessionDTO userSession = getUserSession(request);
 
 		Role role = roleService.getRole(userSession.getRoleId());
 		if (role.getType() != RoleType.ADMIN) {
-			logger.debug("Forbidden user operation. userRole={} userId={} username={}", role.getType(),
+			logger.info("Forbidden user operation. userRole={} userId={} username={}", role.getType(),
 					userSession.getUserId(), userSession.getUsername());
 			throw new ClientRequestException(ErrorType.FORBIDDEN);
 		}
@@ -117,9 +132,13 @@ public class ReaderController extends AbstractController {
 			logger.info("Invalid parametr readerId={}", readerId);
 			throw new ClientRequestException(ErrorType.BAD_REQUEST);
 		}
-
 		User user = userService.getUser(readerId);
-		userService.updateIsBlocked(readerId, !user.getIsBlocked());
+
+		Boolean newStatus = !user.getIsBlocked();
+		logger.info("user input: readerId={} isBlocked={}", readerId, newStatus);
+
+		userService.updateIsBlocked(readerId, newStatus);
+		logger.info("reader status changed");
 
 		response.sendRedirect(HTTP.ADMIN_READERS_PAGE);
 	}

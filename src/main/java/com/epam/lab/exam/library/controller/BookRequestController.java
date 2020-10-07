@@ -23,7 +23,7 @@ import com.epam.lab.exam.library.service.RequestExpirationService;
 import com.epam.lab.exam.library.service.RoleService;
 import com.epam.lab.exam.library.util.Validator;
 
-@WebServlet("/book-request")
+@WebServlet("/reader-requests")
 public class BookRequestController extends AbstractController {
 	private static final long serialVersionUID = 1L;
 	private final RoleService roleService = RoleService.getInstance();
@@ -37,24 +37,39 @@ public class BookRequestController extends AbstractController {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		try {
+			logger.info("loading reader requests page");
 			UserSessionDTO userSession = getUserSession(request);
 
 			Role role = roleService.getRole(userSession.getRoleId());
 			if (role.getType() != RoleType.READER) {
-				logger.debug("Forbidden user operation. userRole={} userId={} username={}", role.getType(),
+				logger.info("Forbidden user operation. userRole={} userId={} username={}", role.getType(),
 						userSession.getUserId(), userSession.getUsername());
 				throw new ClientRequestException(ErrorType.FORBIDDEN);
 			}
 			Integer pageSize = parsePageSizeParameter(request);
 			Integer offset = parseOffsetParameter(request);
+			logger.info("user input: pageSize={} offset={}", pageSize, offset);
+
 			Validator.validate(pageSize, offset);
-			logger.debug("incoming request parameters. pageSize={} offset={}", pageSize, offset);
-			logger.debug("userUd:{}", userSession.getUserId());
+			int noOfRecords = bookRequestService.getUserApprovedRequestsCount(userSession.getUserId());
+			int noOfPages = (int) Math.ceil(noOfRecords * 1.0 / pageSize);
+			int currPage = offset / pageSize + 1;
+			logger.info("noOfRecords={} noOfPages={} currPage={}", noOfRecords, noOfPages, currPage);
+
+
 			List<BookRequestDTO> userApprovedRequests = bookRequestService
 					.getUserApprovedRequests(userSession.getUserId(), pageSize, offset);
 			requestExpirationService.applyFee(userApprovedRequests);
+
+			request.setAttribute("pageSize", pageSize);
+			request.setAttribute("noOfPages", noOfPages);
+			request.setAttribute("offset", offset);
+			request.setAttribute("currPage", currPage);
+			request.setAttribute("location", "reader-requests");
 			request.setAttribute(HTTP.ATTRIBUTE_READER_READER_REQUEST_REQUESTS, userApprovedRequests);
-			logger.debug("response.{}={}", HTTP.ATTRIBUTE_READER_READER_REQUEST_REQUESTS, userApprovedRequests);
+			logger.info("returning requests {}", userApprovedRequests);
+
+			request.getRequestDispatcher("/jsp/reader-requests.jsp").forward(request, response);
 		} catch (ClientRequestException e) {
 			handleError(request, response, ERROR_PAGE, e.getType(), e);
 		} catch (Exception e) {
@@ -65,26 +80,29 @@ public class BookRequestController extends AbstractController {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		try {
+			logger.info("submitting book request");
 			UserSessionDTO userSession = getUserSession(request);
 
 			Role role = roleService.getRole(userSession.getRoleId());
 			if (role.getType() != RoleType.READER) {
-				logger.debug("Forbidden user operation. userRole={} userId={} username={}", role.getType(),
+				logger.info("Forbidden user operation. userRole={} userId={} username={}", role.getType(),
 						userSession.getUserId(), userSession.getUsername());
 				throw new ClientRequestException(ErrorType.FORBIDDEN);
 			}
+			
 			SubmitRequestDTO dto = SubmitRequestDTO.from(request);
+			logger.info("user input: {}", dto);
 			Validator.validate(dto);
-			logger.debug("user id:{}", userSession.getUserId());
+
 			bookRequestService.submitRequest(userSession.getUserId(), dto);
-			logger.debug("Submitted user request={}", dto);
+			logger.info("request submitted");
+
 			response.sendRedirect(HTTP.READER_BOOKS_PAGE);
 		} catch (ClientRequestException e) {
 			handleError(request, response, ERROR_PAGE, e.getType(), e);
 		} catch (Exception e) {
 			handleError(request, response, ERROR_PAGE, ErrorType.INTERNAL_SERVER_ERROR, e);
 		}
-
 	}
 
 }
