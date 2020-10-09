@@ -16,42 +16,44 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Adding librarian</title>
-<link rel="stylesheet" href="css/style.css">
-<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+<title><fmt:message key="header.registration.entermsg" /></title>
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
 <script src="${pageContext.request.contextPath}/js/md5.js"></script>
+<link rel="stylesheet"  href="${pageContext.request.contextPath}/css/styles.css"/>
 </head>
 <body>
-	<div class="wrapper">
-		<div class="container">
-			<h1>Adding librarian</h1>
-			<form id="add-librarian-form" class="form" action="/admin-librarians" method="post" accept-charset="utf-8" enctype="text/html;charset=UTF-8">
-				<input type="text" name="login" placeholder="Login" />
-				 <input type="text" name="firstName" placeholder="First Name" />
-				  <input type="text" name="lastName" placeholder="Last Name" /> 
-				  <input id="password" type="password" name="password" placeholder="Password" /> 
-				  <input id="checksum" type="hidden" name="checksum" />
-				<button type="submit" id="login-button">
-					<fmt:message key="admin.add.librarian.add" />
-				</button>
-			</form>
-		</div>
-		<ul class="bg-bubbles">
-			<li></li>
-			<li></li>
-			<li></li>
-			<li></li>
-			<li></li>
-			<li></li>
-			<li></li>
-			<li></li>
-			<li></li>
-			<li></li>
-		</ul>
-	</div>
+<p>
+<p>
+<p>
+<p>
+<p>
+<form id="login-form" class="form" action="/admin-librarians" method="post" >
+<h2><fmt:message key="admin.createlibrarian" /></h2>
+  <div class="form-group">
+    <label for="login"><fmt:message key="header.login" /></label>
+    <input type="text" class="form-control" id="exampleInputEmail1" name="login" placeholder="<fmt:message key="header.login" />" aria-describedby="emailHelp">
+  </div>
+   <div class="form-group">
+    <label for="firstName"><fmt:message key="header.firstname" /></label>
+    <input type="text" class="form-control" id="exampleInputEmail1" name="firstName" placeholder="<fmt:message key="header.firstname" />" aria-describedby="emailHelp">
+  </div>
+   <div class="form-group">
+    <label for="lastName"> <fmt:message key="header.lastname" /></label>
+    <input type="text" class="form-control" id="exampleInputEmail1" name="lastName" placeholder="<fmt:message key="header.lastname" />" aria-describedby="emailHelp">
+  </div>
+  <div class="form-group">
+    <label for="password"><fmt:message key="header.password" /></label>
+    <input id="password" type="password" name="password" class="form-control"  placeholder="<fmt:message key="header.password" />">
+    <input id="checksum" type="hidden" name="checksum" />
+  </div>
+  <div class="form-group form-check">
+  </div>
+  <button type="submit" class="btn btn-primary" id="login-button"><fmt:message key="header.submit" /></button>
+</form>
+
 	<script>
-		$("#add-librarian-form").on("submit", function() {
+		$("#login-form").on("submit", function() {
 			var password = $("#password");
 			if (password) {
 				var checksum = md5(password);
@@ -59,6 +61,5 @@
 			}
 		});
 	</script>
-
 </body>
 </html>

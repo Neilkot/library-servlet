@@ -45,9 +45,6 @@
 				<hr class="divider my-4" />
 			</div>
 			<div class="container-sm align-self-baseline">
-				<p id="media_hidden" class="text-white-75 font-weight-light mb-5">
-					<fmt:message key="xxxxx" />
-				</p>
 				<div class="table-responsive table table-fixed ">
 					<form id="submit_form" action="/approved-request" method="post">
 						<input id="submit_request_id" name="bookRequestId" type="hidden" />

@@ -16,6 +16,8 @@
 <!DOCTYPE html>
 <html>
 <head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
 <link rel="icon" type="image/x-icon" href="${pageContext.request.contextPath}/assets/img/favicon.ico" />
 <!-- Google fonts-->
 <link href="https://fonts.googleapis.com/css?family=Merriweather+Sans:400,700" rel="stylesheet" />
@@ -51,13 +53,13 @@
 					<table class="table">
 						<thead class="thead-dark">
 							<tr>
-								<th scope="col"><fmt:message key="request.table.request.id" /></th>
-								<th scope="col"><fmt:message key="request.table.request.username" /></th>
-								<th scope="col"><fmt:message key="request.table.request.book.name" /></th>
-								<th scope="col"><fmt:message key="request.table.request.request.type" /></th>
-								<th scope="col"><fmt:message key="request.table.request.create.date" /></th>
-								<th scope="col"><fmt:message key="request.table.request.allow" /></th>
-								<th scope="col"><fmt:message key="request.table.request.disallow" /></th>
+								<th scope="col"><fmt:message key="table.book.id" /></th>
+								<th scope="col"><fmt:message key="table.book.username" /></th>
+								<th scope="col"><fmt:message key="table.book.name" /></th>
+								<th scope="col"><fmt:message key="table.book.type" /></th>
+								<th scope="col"><fmt:message key="table.book.createdate" /></th>
+								<th scope="col"><fmt:message key="table.librarian.allow" /></th>
+								<th scope="col"><fmt:message key="table.librarian.disallow" /></th>
 							</tr>
 						</thead>
 						<tbody>

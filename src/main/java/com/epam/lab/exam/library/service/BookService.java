@@ -171,4 +171,13 @@ public class BookService {
 		}
 
 	}
+
+	public int getCountAllAvaliableBooks() throws SQLException {
+		Connection connection = dbManager.getConnection();
+		try {
+			return bookDao.countAllAvaliableBooks(connection);
+		} finally {
+			dbManager.releaseConnection(connection);
+		}
+	}
 }

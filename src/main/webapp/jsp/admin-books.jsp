@@ -55,10 +55,12 @@
 						id="submit_update_published_year" name="published_year" type="hidden" /> <input id="submit_update_img_link" name="image_link" type="hidden" /> <input name="method" type="hidden"
 						value="pre-put" />
 				</form>
+<div align="center">
 
 				<a href="/jsp/admin-add.jsp"><button type="button" class="btn btn-warning">
 						<fmt:message key="admin.newbutton" />
 					</button></a>
+					</div>
 				<div class="table-responsive table table-fixed ">
 					<table class="table">
 						<thead class="thead-dark">
@@ -71,7 +73,7 @@
 								<th scope="col"><fmt:message key="table.book.published.year" /></th>
 								<th scope="col"><fmt:message key="table.book.image" /></th>
 								<th scope="col"><fmt:message key="table.book.action" /></th>
-								<th scope="col"><fmt:message key="header.action" /></th>
+								<th scope="col"><fmt:message key="table.book.action" /></th>
 							</tr>
 						</thead>
 						<tbody>

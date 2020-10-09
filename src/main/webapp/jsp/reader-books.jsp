@@ -16,6 +16,8 @@
 <!DOCTYPE html>
 <html>
 <head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
 <!-- Favicon-->
 <link rel="icon" type="image/x-icon" href="${pageContext.request.contextPath}/assets/img/favicon.ico" />
 <!-- Google fonts-->
@@ -120,6 +122,17 @@
 	</div>
 </header>
 <script>
+$(document).ready(function() {
+
+	$("#en").click(function() {
+		document.cookie = "language=en";
+		location.reload();
+	});
+	$("#ua").click(function() {
+		document.cookie = "language=ua";
+		location.reload();
+	});
+});
 	function submitRequest(bookId) {
 		requestType = $("#request_type_" + bookId).val();
 		$("#submit_book_id").val(bookId);

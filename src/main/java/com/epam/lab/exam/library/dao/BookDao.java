@@ -198,4 +198,16 @@ public class BookDao implements Dao<Book, Integer>, CountableDao {
 		return DB.TABLE_BOOK;
 	}
 
+	public int countAllAvaliableBooks(Connection connection) throws SQLException{
+String sql  = "SELECT COUNT( b.name) as count from books b JOIN book_items bi ON\n"
+		+ " bi.book_id = b.id JOIN book_requests br ON\n"
+		+ " br.book_item_id = bi.id JOIN book_requests_journals brj ON\n"
+		+ " brj.book_request_id = br.id WHERE brj.return_date IS NOT NULL;";
+try( PreparedStatement pst = connection.prepareStatement(sql); ResultSet rs = pst.executeQuery()){
+	return rs.next() ? rs.getInt("count") : 0;
+}
+		
+		
+	}
+
 }

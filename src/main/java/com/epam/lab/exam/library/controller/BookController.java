@@ -36,7 +36,7 @@ public class BookController extends AbstractController {
 			logger.info("pageSize={} offset={}", pageSize, offset);
 
 			Validator.validate(pageSize, offset);
-			int noOfRecords = bookService.getBooksCount();
+			int noOfRecords = bookService.getCountAllAvaliableBooks();
 			int noOfPages = (int) Math.ceil(noOfRecords * 1.0 / pageSize);
 			int currPage = offset / pageSize + 1;
 			logger.info("noOfRecords={} noOfPages={} currPage={}", noOfRecords, noOfPages, currPage);
