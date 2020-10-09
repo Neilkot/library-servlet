@@ -31,7 +31,6 @@
 <script src="https://use.fontawesome.com/releases/v5.13.0/js/all.js" crossorigin="anonymous"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.bundle.min.js"></script>
 <script src="${pageContext.request.contextPath}/js/globalVars.js" type="text/javascript"></script>
-<script src="${pageContext.request.contextPath}/js/md5.js"></script>
 </head>
 <jsp:include page="header.jsp" />
 <!-- Masthead-->

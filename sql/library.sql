@@ -1,8 +1,6 @@
 DROP DATABASE IF EXISTS library;
 CREATE DATABASE library character set UTF8 collate utf8_general_ci;
 
-USE library;
-
 DROP TABLE IF EXISTS book_requests_journals;
 DROP TABLE IF EXISTS book_requests;
 DROP TABLE IF EXISTS book_request_types;
@@ -99,21 +97,21 @@ SET SESSION sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
  -- VALUES for DB
  
 INSERT INTO roles (type) VALUES("READER"), ("LIBRARIAN"), ("ADMIN");
-INSERT INTO USERS (login, checksum, first_name, last_name, role_id) VALUES ("admin", "1441a7909c087dbbe7ce59881b9df8b9", "Kostya", "Morozov", 3);  
-INSERT INTO USERS (login, checksum, first_name, last_name, role_id) VALUES ("librarian1", "1441a7909c087dbbe7ce59881b9df8b9", "Jane", "Doe", 2);
-INSERT INTO USERS (login, checksum, first_name, last_name, role_id) VALUES ("librarian", "1", "Jane", "Doe", 2);
-INSERT INTO USERS (login, checksum, first_name, last_name, role_id) VALUES ("admin1", "1", "Kostya", "Morozov", 3);
+INSERT INTO USERS (login, checksum, first_name, last_name, role_id) VALUES ("admin", "C4CA4238A0B923820DCC509A6F75849B", "Kostya", "Morozov", 3);  
+INSERT INTO USERS (login, checksum, first_name, last_name, role_id) VALUES ("librarian", "C4CA4238A0B923820DCC509A6F75849B", "Jane", "Doe", 2);
+INSERT INTO USERS (login, checksum, first_name, last_name, role_id) VALUES ("jane", "C4CA4238A0B923820DCC509A6F75849B", "Jane", "Doe", 2);
 INSERT INTO authors (name) VALUES ("Robert Martin"), ("Joshua Bloch"), ("William Shakespeare"), ("Mark Twain"), ("Тарас Шевченко"), ("Іван Котляревський"), ("J. K. Rowling") ;
 
--- ("Кобзар", 5, "Барвiнок", 1999, "https://img.yakaboo.ua/media/catalog/product/cache/1/image/398x565/234c7c011ba026e66d29567e1be1d1f7/1/8/18291_26236_13.jpg"),
 INSERT INTO books (name, author_id, publisher, publish_year, image_link) VALUES 
- ("Clean Code", 1, "PROSTYLE", 2012, "https://saltares.com/img/wp/clean-code-uncle-bob.jpg"),
+("Кобзар", 5, "Барвiнок", 1999, "https://img.yakaboo.ua/media/catalog/product/cache/1/image/398x565/234c7c011ba026e66d29567e1be1d1f7/1/8/18291_26236_13.jpg"),
+("Clean Code", 1, "PROSTYLE", 2012, "https://saltares.com/img/wp/clean-code-uncle-bob.jpg"),
 ("JAVA Effective Programming", 2, "American House", 2015, "https://images-na.ssl-images-amazon.com/images/I/41JLgmt8MlL._SX402_BO1,204,203,200_.jpg"),
 ("Romeo and Juliet", 3, "Simon & Schuster", 2004, "https://images-na.ssl-images-amazon.com/images/I/31ObBpDEOcL._BO1,204,203,200_.jpg"),
-("Енеїда", 6, 2004, "Книги Львова" "https://img.yakaboo.ua/media/catalog/product/cache/1/image/398x565/234c7c011ba026e66d29567e1be1d1f7/i/m/img240_1_60.jpg"),
-("Harry Potter and the Philosopher's Stone", 1, 20002, "London Lit", "https://img.yakaboo.ua/media/catalog/product/cache/1/image/398x565/234c7c011ba026e66d29567e1be1d1f7/4/8/483720_11873905.jpg");
+("Енеїда", 6, "Книги Львова", 2004, "https://img.yakaboo.ua/media/catalog/product/cache/1/image/398x565/234c7c011ba026e66d29567e1be1d1f7/i/m/img240_1_60.jpg"),
+("Harry Potter and the Philosopher's Stone", 1, "London Lit", 2002, "https://img.yakaboo.ua/media/catalog/product/cache/1/image/398x565/234c7c011ba026e66d29567e1be1d1f7/4/8/483720_11873905.jpg");
 
+INSERT INTO book_items (book_id) VALUES (1), (2), (3), (4), (5), (6), (3), (3), (5), (5), (5);
 INSERT INTO book_request_types (type) VALUES("ABONEMENT"), ("READING_AREA");
-
 select * from books;
 select * from authors;
+select * from users;

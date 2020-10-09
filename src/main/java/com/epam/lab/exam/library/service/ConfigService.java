@@ -1,7 +1,6 @@
 package com.epam.lab.exam.library.service;
 
 import java.time.ZoneId;
-import java.util.concurrent.TimeUnit;
 
 public class ConfigService {
 
@@ -9,11 +8,12 @@ public class ConfigService {
 	
 	private String defaultLocale;
 	private Float dailyFee;
-	private long expirationMillis;
+	private long expirationDays;
 	private Integer defaultPageSize;
 	private Integer defaultOffset;
 	private ZoneId libraryTimezone;
 	private int libraryClosingHour;
+	private String checksumAlgorithm;
 
 
 	private ConfigService() {
@@ -31,9 +31,6 @@ public class ConfigService {
 		this.dailyFee = dailyFee;
 	}
 
-	public void setExpirationMillis(long expirationMillis) {
-		this.expirationMillis = expirationMillis;
-	}
 
 	public void setDefaultPageSize(Integer defaultPageSize) {
 		this.defaultPageSize = defaultPageSize;
@@ -63,10 +60,6 @@ public class ConfigService {
 		return dailyFee;
 	}
 
-	public long getExpirationMillis() {
-		return expirationMillis;
-	}
-
 	public Integer getDefaultPageSize() {
 		return defaultPageSize;
 	}
@@ -82,37 +75,23 @@ public class ConfigService {
 	public int getLibraryClosingHour() {
 		return libraryClosingHour;
 	}
+
+	public String getChecksumAlgorithm() {
+		return checksumAlgorithm;
+	}
+
+	public void setChecksumAlgorithm(String checksumAlgorithm) {
+		this.checksumAlgorithm = checksumAlgorithm;
+	}
+
+	public long getExpirationDays() {
+		return expirationDays;
+	}
+
+	public void setExpirationDays(long expirationDays) {
+		this.expirationDays = expirationDays;
+	}
 	
 	
-
-//	public String getDefaultLocale() {
-//		return "ua";
-//	}
-
-	
-
-//	public Float getDailyFee() {
-//		return 50.0f;
-//	}
-//
-//	public long getExpirationMillis() {
-//		return TimeUnit.DAYS.toMillis(7);
-//	}
-//
-//	public Integer getDefaultPageSize() {
-//		return 2;
-//	}
-//
-//	public Integer getDefaultOffset() {
-//		return 0;
-//	}
-//
-//	public ZoneId getLibraryTimezone() {
-//		return ZoneId.of("Europe/Kiev");
-//	}
-//
-//	public int getLibraryClosingHour() {
-//		return 22;
-//	}
 
 }

@@ -25,6 +25,7 @@ public class UserService {
 	private final DBManager dbManager = DBManagerContainer.getInstance().getdBManager();
 	private final UserDao userDao = UserDao.getInstance();
 	private final RoleService roleService = RoleService.getInstance();
+	private final ChecksumService checksumService = ChecksumService.getInstance();
 
 	private final Logger logger = LogManager.getLogger(this.getClass());
 
@@ -39,7 +40,7 @@ public class UserService {
 		Connection connection = dbManager.getConnection();
 		try {
 			return Optional.ofNullable(userDao.getByLogin(connection, login))
-					.filter(u -> u.getChecksum().equalsIgnoreCase(checksum)).orElse(null);
+					.filter(u -> u.getChecksum().equalsIgnoreCase(checksumService.makeChecksum(checksum))).orElse(null);
 		} finally {
 			dbManager.releaseConnection(connection);
 		}
@@ -95,7 +96,7 @@ public class UserService {
 		}
 		User user = new User();
 		user.setLogin(login);
-		user.setChecksum(checksum);
+		user.setChecksum(checksumService.makeChecksum(checksum));
 		user.setFirstName(firstName);
 		user.setLastName(lastName);
 		user.setRoleId(roleId);

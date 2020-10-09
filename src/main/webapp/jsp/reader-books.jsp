@@ -32,7 +32,6 @@
 <script src="https://use.fontawesome.com/releases/v5.13.0/js/all.js" crossorigin="anonymous"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.bundle.min.js"></script>
 <script src="${pageContext.request.contextPath}/js/globalVars.js" type="text/javascript"></script>
-<script src="${pageContext.request.contextPath}/js/md5.js"></script>
 </head>
 <jsp:include page="header.jsp" />
 <!-- Masthead-->
@@ -40,9 +39,9 @@
 	<div class="container h-100">
 		<div class="row h-100 align-items-center justify-content-center text-center ">
 			<div id="media_hidden" class="col-lg-10 align-self-end">
-				<h1 class="text-uppercase text-white font-weight-bold">
+				<h3 class="text-uppercase text-white font-weight-bold">
 					<fmt:message key="header.welcome.message" />
-				</h1>
+				</h3>
 				<hr class="divider my-4" />
 			</div>
 			<div class="container-sm align-self-baseline">

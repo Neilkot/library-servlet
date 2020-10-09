@@ -19,7 +19,6 @@
 <title>Adding book</title>
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
-<script src="${pageContext.request.contextPath}/js/md5.js"></script>
 <link rel="stylesheet" href="${pageContext.request.contextPath}/css/styles.css" />
 </head>
 <body>

@@ -38,7 +38,7 @@ public class RequestExpirationService {
 		Instant now = Instant.now();
 		switch (requestType) {
 		case ABONEMENT:
-			return now.plusMillis(configService.getExpirationMillis());
+			return now.plus(configService.getExpirationDays(), ChronoUnit.DAYS);
 		case READING_AREA:
 			if (!isLibraryOpen()) {
 				throw new ClientRequestException(ErrorType.LIBRARY_IS_CLOSED);

@@ -20,7 +20,6 @@
 <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
 <link rel="stylesheet" href="${pageContext.request.contextPath}/css/styles.css" />
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-<script src="${pageContext.request.contextPath}/js/md5.js"></script>
 </head>
 <body>
 	<br>

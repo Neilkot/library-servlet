@@ -149,6 +149,7 @@ public class BookRequestDao implements Dao<BookRequest, Integer> {
 					bookRequestDto.setUsername(rs.getNString(DB.COLUMN_NAME_USER_NAME));
 					bookRequestDto.setBookName(rs.getString(DB.COLUMN_NAME_BOOK_NAME));
 					bookRequestDto.setAuthorName(rs.getString(DB.COLUMN_NAME_AUTHOR_NAME));
+					bookRequestDto.setRequestType(RequestType.valueOf(rs.getString(DB.COLUMN_NAME_REQUEST_TYPE)));
 					bookRequestDto
 							.setCreateDate(DBHelper.fromSqlTimestamp(rs.getTimestamp(DB.COLUMN_NAME_CREATE_DATE)));
 					bookRequestDto.setApproveDate(

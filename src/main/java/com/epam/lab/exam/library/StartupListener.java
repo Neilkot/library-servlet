@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.time.ZoneId;
 import java.util.Properties;
-import java.util.concurrent.TimeUnit;
 
 import javax.naming.NamingException;
 import javax.servlet.ServletContextEvent;
@@ -35,13 +34,14 @@ public class StartupListener implements ServletContextListener {
 	}
 
 	private void initializeConfigService(Properties props) {
-		configService.setDefaultLocale(props.getProperty("defaultLocale"));
-		configService.setDailyFee(Float.valueOf(props.getProperty("dailyFee")));
-		configService.setExpirationMillis(TimeUnit.DAYS.toMillis(Long.parseLong(props.getProperty("expirationMillis"))));
-		configService.setDefaultPageSize(Integer.parseInt(props.getProperty("defaultPageSize")));
-		configService.setDefaultOffset(Integer.parseInt(props.getProperty("defaultOffset")));
-		configService.setLibraryClosingHour(Integer.parseInt(props.getProperty("libraryClosingHour")));
-		configService.setLibraryTimezone(ZoneId.of(props.getProperty("libraryTimezone")));
+		configService.setDefaultLocale(props.getProperty("default.locale"));
+		configService.setDailyFee(Float.valueOf(props.getProperty("daily.fee")));
+		configService.setExpirationDays(Long.parseLong(props.getProperty("expiration.days")));
+		configService.setDefaultPageSize(Integer.parseInt(props.getProperty("default.page.size")));
+		configService.setDefaultOffset(Integer.parseInt(props.getProperty("default.offset")));
+		configService.setLibraryClosingHour(Integer.parseInt(props.getProperty("library.closing.hour")));
+		configService.setLibraryTimezone(ZoneId.of(props.getProperty("library.timezone")));
+		configService.setChecksumAlgorithm(props.getProperty("checksum.algorithm"));
 	}
 
 	public void contextDestroyed(ServletContextEvent sce) {
